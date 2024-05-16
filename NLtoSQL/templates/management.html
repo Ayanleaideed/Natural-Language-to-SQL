@@ -1,49 +1,48 @@
 {% extends 'base.html' %}
-{% load static  %}
+{% load static %}
 {% block title %}Management{% endblock %}
 
 {% block content %}
- 
-  <div class="management-container">
+<link rel="stylesheet" href="{% static 'css/management.css' %}">
+
+<div class="management-container">
     <h1>Database Management</h1>
-    <link rel="stylesheet" href="{% static 'css/management.css' %}">
-    <div class="dropdown-container">
-      <label for="database-dropdown">Select Current Database:</label>
-      <select id="database-dropdown" class="dropdown">
-        <option value="" disabled selected>Select a database</option>
-        <option value="db1">Database 1</option>
-        <option value="db2">Database 2</option>
-        <option value="db3">Database 3</option>
-      </select>
+    <div class="dropdown-upload-container">
+        
+        <div class="dropdown-container">
+            <label for="database-dropdown">Select Current Database:</label>
+            <select id="database-dropdown" class="dropdown">
+                <option value="" disabled selected>Select a database</option>
+                <option value="{db.id}">Database 1</option>
+            </select>
+        </div>
+      
+        <div class="database-upload-card">
+            <a class="button upload-button" href="{% url 'upload_database' %}">Upload New Database</a>
+        </div>
     </div>
 
     <div class="database-info">
-      <div class="database-card">
-        <h2>Database Name</h2>
-        <p>Upload sample to this database</p>
-        <div class="database-buttons">
-          <button class="button delete-button">Delete Database</button>
-          <button class="button upload-button">Upload Sample Database</button>
+        {% for database in databases %}
+        <div class="database-card">
+            <h2>{{ database.name }}</h2>
+            <p>Uploaded by: {{ database.user.username }}</p>
+            <p>Type: {{ database.type.name }}</p>
+            <p>Uploaded at: {{ database.uploaded_at }}</p>
+            <p>Size: {{ database.size }} bytes</p>
+            <div class="database-buttons">
+                <button class="button delete-button">Delete Database</button>
+                <button class="button upload-button">Upload Sample Database</button>
+            </div>
         </div>
-      </div>
-
-      <div class="database-card">
-        <h2>Database Name</h2>
-        <p>Upload sample to this database</p>
-        <div class="database-buttons">
-          <button class="button delete-button">Delete Database</button>
-          <button class="button upload-button">Upload Sample Database</button>
+        {% endfor %}
+        <div class="database-card">
+            <h2>Database Name</h2>
+            <p>Upload sample to this database</p>
+            <div class="database-buttons">
+                <button class="button delete-button">Delete Database</button>
+                <button class="button upload-button">Upload Sample Database</button>
+            </div>
         </div>
-      </div>
-
-      <div class="database-card">
-        <h2>Database Name</h2>
-        <p>Upload sample to this database</p>
-        <div class="database-buttons">
-          <button class="button delete-button">Delete Database</button>
-          <button class="button upload-button">Upload Sample Database</button>
-        </div>
-      </div>
     </div>
-  </div>
 {% endblock %}

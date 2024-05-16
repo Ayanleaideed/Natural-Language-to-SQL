@@ -9,4 +9,5 @@ urlpatterns = [
     path('query/', views.query_func, name='query'),
     path('management/', views.management, name='management'),
     path('generate/', views.generate_sql, name='generate_sql'),
+    path('upload_database/', views.upload_database, name='upload_database'),
 ]

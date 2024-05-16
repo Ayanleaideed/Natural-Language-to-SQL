@@ -28,7 +28,7 @@ body {
 /* Container */
 .management-container {
   width: 950px;
-  margin: .2rem auto;
+  margin: 2rem auto;
   text-align: center;
   background-color: var(--active-color);
   padding: 20px;
@@ -40,6 +40,13 @@ h1 {
   font-size: 2rem;
   margin-bottom: 1.5rem;
   color: var(--accent-color);
+}
+
+.dropdown-upload-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
 }
 
 .dropdown-container {
@@ -92,6 +99,17 @@ h1 {
 .database-card p {
   margin-bottom: 1rem;
   color: var(--secondary-text-color);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 0.5rem;
+  background-color: #f9f9f9;
+  border-left: 4px solid var(--accent-color);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.database-card p:hover {
+  background-color: #f1f1f1;
 }
 
 .database-buttons {
@@ -114,8 +132,7 @@ h1 {
 }
 
 .delete-button:hover {
-  background-color: hsla(6, 100%, 50%, 0.622);
-
+  background-color: var(--delete-hover-color);
 }
 
 .upload-button {
@@ -125,4 +142,22 @@ h1 {
 
 .upload-button:hover {
   background-color: var(--upload-hover-color);
+}
+
+.database-upload-card a {
+  text-align: right;
+  text-decoration: none;
+}
+
+
+.dropdown-container  {
+  width: 60%;
+}
+
+.btn-back{
+  background-color: rgba(0, 98, 255, 0.601) !important;
+  margin-left: 10px;
+  text-decoration: none !important;
+  padding: 8px 25px;
+  border-radius: 5px;
 }
