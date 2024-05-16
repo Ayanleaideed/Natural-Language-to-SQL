@@ -34,6 +34,9 @@ body {
   padding: 20px;
   border-radius: 8px;
   box-shadow: var(--box-shadow);
+  margin-top: 2rem;
+  /* border-left: 4px solid var(--accent-color);
+  border-right: 4px solid var(--accent-color); */
 }
 
 h1 {
@@ -80,6 +83,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .database-card {
@@ -94,6 +98,7 @@ h1 {
 .database-card h2 {
   margin-top: 0;
   color: var(--accent-color);
+
 }
 
 .database-card p {
@@ -148,6 +153,7 @@ h1 {
   text-align: right;
   text-decoration: none;
 }
+
 
 
 .dropdown-container  {

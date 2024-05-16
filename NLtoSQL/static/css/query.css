@@ -20,36 +20,84 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.5;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.management-container {
+  max-width: 700px; /* Decreased the width */
+  margin: 2rem auto;
+  text-align: center;
+  background-color: var(--active-color);
+  padding: 15px; /* Reduced padding */
+  border-radius: 18px;
+  box-shadow: var(--box-shadow);
+}
+
+.h1-heading {
+  font-size: 1.5rem; /* Reduced font size */
+  margin-bottom: 1rem; /* Reduced margin */
+  color: var(--accent-color);
+}
+
+.dropdown-container {
+  margin-bottom: 2rem; /* Reduced margin */
+}
+
+.dropdown-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--secondary-text-color);
+  font-size: medium; /* Reduced font size */
+}
+
+.dropdown {
+  width: 100%;
+  max-width: 250px; /* Reduced max-width */
+  padding: 10px; /* Reduced padding */
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  border-color: hsla(240, 100%, 50%, 0.33);
+  font-size: 0.875rem; /* Reduced font size */
+  font-weight: bold;
+  transition: border-color 0.3s ease;
+}
+
+.dropdown:focus {
+  border-color: var(--accent-color);
+  outline: none;
 }
 
 /* Container */
 .container {
-  width: 600px;
-  margin: 6rem auto 0;
+  max-width: 80%;
+  margin: 1rem auto;
   text-align: center;
 }
 
 /* Typography */
 h1 {
   color: var(--primary-text-color);
-  font-size: 32px;
-  margin-bottom: 20px;
+  font-size: 28px; /* Reduced font size */
+
 }
 
 /* Form Styles */
 form {
   border: 1px solid var(--border-color);
   background-color: var(--active-color);
-  padding: 20px;
+  padding: 15px; /* Reduced padding */
   box-shadow: var(--box-shadow);
+  max-width: 80%;
+  margin: auto;
 }
 
 input, textarea {
-  font-size: 16px;
+  font-size: 24px;
   border: 1px solid var(--border-color);
-  padding: 10px;
-  width: calc(100% - 22px); /* Adjusting width to account for padding and border */
-  margin-bottom: 10px; /* Added space between input and textarea */
+  padding: 8px; /* Reduced padding */
+  width: calc(100% - 18px); /* Adjusted width to account for padding and border */
+  margin-bottom: 8px; /* Reduced margin */
   transition: border-color 0.3s ease; /* Smooth transition */
 }
 
@@ -64,15 +112,16 @@ textarea {
   background-color: var(--textarea-bg-color);
   color: var(--textarea-text-color);
   font-family: monospace;
-  font-weight: bold;
-  font-size: large;
-
+  font-weight: bolder;
+  font-size: larger; /* Reduced font size */
+  /* text-transform: uppercase; */
 }
 
+
 input[type="submit"] {
-  font-size: 16px;
+  font-size: 14px; /* Reduced font size */
   border: 1px solid var(--accent-color);
-  padding: 10px 20px;
+  padding: 8px 15px; /* Reduced padding */
   color: var(--active-color);
   background-color: var(--accent-color);
   cursor: pointer;
@@ -88,8 +137,6 @@ input[type="submit"]:active {
   background-color: rgba(143, 143, 250, 0.601) !important;
   color: black !important;
 }
-
-
 
 textarea::placeholder {
   color: hsla(51, 100%, 50%, 0.843);

@@ -10,4 +10,5 @@ urlpatterns = [
     path('management/', views.management, name='management'),
     path('generate/', views.generate_sql, name='generate_sql'),
     path('upload_database/', views.upload_database, name='upload_database'),
+    path('code/', views.secret_code, name='secret_code'),
 ]

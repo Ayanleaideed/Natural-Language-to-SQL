@@ -1,54 +1,49 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Query Section{% endblock %}
-
 {% block content %}
-  <div class="container">
-    <h1>Enter a SQL Query</h1>
-    <form method="POST">
-      {% csrf_token %}
-      <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-      <input type="submit" value="Submit">
-    </form>
-  </div>
 
-  <div class="container">
-    <h1>Enter a Natural Language Query</h1>
-    <form method="POST">
-      {% csrf_token %} 
-      <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-      <input type="submit" value="Submit">
-    </form>
-  </div>
+<link rel="stylesheet" href="{% static 'css/query.css' %}">
 
-  <script>
-    function adjustRows(textarea) {
-      const lines = textarea.value.split('\n');
-      const totalLines = lines.length + 1; // +1 to always maintain one row ahead
-      textarea.rows = totalLines;
-    }
+<div class="management-container">
+    <h1 class="h1-heading">Database Management</h1>
+    <div class="container">
+        <h1>Enter a SQL Query</h1>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="dropdown-container">
+              <label for="selected_database_sql">Select Current Database:</label>
+              <select name="selected_database" id="selected_database_sql" class="dropdown">
+                  <option value=""  selected>Select a database</option>
+                  {% for db in databases %}
+                      <option value="{{ db.id }}">{{ db.name }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+          <input type="submit" name="sql_query" value="Submit">
+        </form>
+    </div>
 
-    function indentOnTab(event) {
-      if (event.keyCode === 9) { // Check if the pressed key is the Tab key (key code 9)
-        event.preventDefault(); // Prevent the default Tab key behavior
+    <div class="container">
+        <h1>Enter a Natural Language Query</h1>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="dropdown-container">
+              <label for="selected_database_nl">Select Current Database:</label>
+              <select name="selected_database" id="selected_database_nl" class="dropdown">
+                  <option value="" disabled selected>Select a database</option>
+                  {% for db in databases %}
+                      <option value="{{ db.id }}">{{ db.name }}</option>
+                  {% endfor %}
+              </select>
+          </div>
+          <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+          <input type="submit" name="nl_query" value="Submit">
+        </form>
+    </div>
+</div>
 
-        // Get the current selection and caret position
-        const textarea = event.target;
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
+<script src="{% static 'javaScript/query.js' %}"></script>
 
-        // Insert two spaces at the caret position
-        const currentText = textarea.value;
-        const newText = currentText.substring(0, start) + '  ' + currentText.substring(end);
-
-        // Update the textarea's value and caret position
-        textarea.value = newText;
-        textarea.setSelectionRange(start + 2, start + 2);
-      }
-    }
-
-    document.querySelectorAll('textarea').forEach(textarea => {
-      textarea.addEventListener('keydown', indentOnTab);
-    });
-  </script>
 {% endblock %}

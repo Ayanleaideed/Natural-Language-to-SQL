@@ -5,13 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}NLtoSQL Project{% endblock %}</title>
   {% load static %}
-  <!-- <link rel="icon" type="image/x-icon" href="/images/favicon.ico <i class="bi bi-gear"></i>"> -->
+
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/query.css' %}">
-  <!-- <link rel="stylesheet" href="{% static 'css/management.css' %}"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-  
 </head>
 <body>
 
@@ -21,16 +17,12 @@
   </a>
   
   <div class="nav-buttons">
-      <a class="nav-link" href="{% url 'query' %}">
-        <i class="fas fa-database"></i> Query
-      </a>
-    
-    
+    <a class="nav-link" href="{% url 'query' %}">
+      <i class="fas fa-database"></i> Query
+    </a>
     <a class="nav-link" href="{% url 'management' %}">
       <i class="fas fa-cogs"></i> Management
     </a>
-
-    <!-- upcoming Soon -->
     <a class="nav-link" href="{% url 'generate_sql' %}">
       <i class="fas fa-code"></i> Generate SQL
     </a>
@@ -42,20 +34,25 @@
     <button class="auth-button" id="register-button">Register</button>
     <button class="auth-button" id="login-button">Login</button>
   </div>
-  
 </div>
 
+<!-- Messages Section -->
+{% if request.user.username == 'admin' %}
+  
+
+{% if messages %}
+<div class="custom-alerts">
+  {% for message in messages %}
+    <div class="custom-alert custom-alert-{{ message.tags }}">
+      <span>{{ message }}</span>
+      <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endif %}
 
 <main>
-  {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>{{ message.tags }}</strong> {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-  {% endif %}
-
   {% block content %}
   <!-- Content will be injected here -->
   {% endblock %}
@@ -65,6 +62,5 @@
   <p>&copy; {% now "Y" %} NLtoSQL Project</p>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -51,7 +51,6 @@ footer {
   display: flex;
   align-items: center;
   background-color: #fff;
-  /* color: #005bb5; */
   color: hsl(0, 2%, 33%);
   border-radius: 5px;
   padding: 8px 12px;
@@ -67,31 +66,29 @@ footer {
 .nav-link:hover {
   background-color: #005bb5;
   color: #fff;
-  /* border: 0.5px solid hsla(0, 0%, 100%, 0.19); */
-  transition: .5 ease-in-out;
+  transition: .5s ease-in-out;
 }
 
 .logo {
   color: white;
   font-size: 24px;
   font-weight: bold;
-  margin-right: 20px; /* Add some space between the logo and the buttons */
+  margin-right: 20px;
 }
+
 .logo-link {
   text-decoration: none;
 }
 
 .logo {
   display: inline;
-
 }
-
 
 .user-actions {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto; /* Push user actions to the right */
+  margin-left: auto;
 }
 
 .user-actions i {
@@ -119,4 +116,63 @@ footer {
   color: white;
   font-size: 16px;
   font-weight: bold;
+}
+
+/* Custom Alerts */
+
+.custom-alerts {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.custom-alert {
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.custom-alert-warning {
+  background-color: #ffcc00;
+  color: #333;
+}
+
+.custom-alert-info {
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.custom-alert-success {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.custom-alert-danger {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+
+.custom-alert-info {
+  background-color: hsla(193, 97%, 48%, 0.633);
+  color: hsla(0, 0%, 0%, 0.674);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  position: absolute;
+  right: 10px;
 }
