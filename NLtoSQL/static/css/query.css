@@ -1,0 +1,97 @@
+/* Variables for theming and consistency */
+:root {
+  --bg-color: #f2f2f2;
+  --font-stack: Arial, sans-serif;
+  --primary-text-color: #333;
+  --secondary-text-color: #555;
+  --border-color: #ccc;
+  --accent-color: #2a88e6;
+  --hover-color: rgba(255, 0, 0, 0.752);
+  --active-color: #fff;
+  --box-shadow: 0 2px 2px #ccc;
+  --textarea-bg-color: #000;
+  --textarea-text-color: #0ed30e;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--bg-color);
+  font-family: var(--font-stack);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+}
+
+/* Container */
+.container {
+  width: 600px;
+  margin: 6rem auto 0;
+  text-align: center;
+}
+
+/* Typography */
+h1 {
+  color: var(--primary-text-color);
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+/* Form Styles */
+form {
+  border: 1px solid var(--border-color);
+  background-color: var(--active-color);
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+input, textarea {
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  width: calc(100% - 22px); /* Adjusting width to account for padding and border */
+  margin-bottom: 10px; /* Added space between input and textarea */
+  transition: border-color 0.3s ease; /* Smooth transition */
+}
+
+input:focus, textarea:focus { /* Added focus state */
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+textarea {
+  resize: none;
+  overflow-y: hidden;
+  background-color: var(--textarea-bg-color);
+  color: var(--textarea-text-color);
+  font-family: monospace;
+  font-weight: bold;
+  font-size: large;
+
+}
+
+input[type="submit"] {
+  font-size: 16px;
+  border: 1px solid var(--accent-color);
+  padding: 10px 20px;
+  color: var(--active-color);
+  background-color: var(--accent-color);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+input[type="submit"]:hover {
+  background-color: var(--hover-color);
+}
+
+input[type="submit"]:active {
+  background-color: rgba(143, 143, 250, 0.601) !important;
+  color: black !important;
+}
+
+
+
+textarea::placeholder {
+  color: hsla(51, 100%, 50%, 0.843);
+  opacity: 0.8;
+}

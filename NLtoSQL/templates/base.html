@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NLtoSQL Project{% endblock %}</title>
+  {% load static %}
+  <!-- <link rel="icon" type="image/x-icon" href="/images/favicon.ico <i class="bi bi-gear"></i>"> -->
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/query.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'css/management.css' %}"> -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+<div class="navbar">
+  <a href="/" class="logo-link">
+    <h1 class="logo">Natural Language to SQL</h1>
+  </a>
+  
+  <div class="nav-buttons">
+      <a class="nav-link" href="{% url 'query' %}">
+        <i class="fas fa-database"></i> Query
+      </a>
+    
+    
+    <a class="nav-link" href="{% url 'management' %}">
+      <i class="fas fa-cogs"></i> Management
+    </a>
+
+    <!-- upcoming Soon -->
+    <a class="nav-link" href="{% url 'generate_sql' %}">
+      <i class="fas fa-code"></i> Generate SQL
+    </a>
+  </div>
+  
+  <div class="user-actions">
+    <i class="fas fa-user"></i>
+    <span class="username">User</span>
+    <button class="auth-button" id="register-button">Register</button>
+    <button class="auth-button" id="login-button">Login</button>
+  </div>
+  
+</div>
+
+<main>
+  {% block content %}
+  <!-- Content will be injected here -->
+  {% endblock %}
+</main>
+
+<footer>
+  <p>&copy; {% now "Y" %} NLtoSQL Project</p>
+</footer>
+
+</body>
+</html>

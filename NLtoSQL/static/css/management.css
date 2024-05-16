@@ -1,0 +1,128 @@
+/* Variables for theming and consistency */
+:root {
+  --bg-color: #f2f2f2;
+  --font-stack: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --primary-text-color: #333;
+  --secondary-text-color: #555;
+  --border-color: #ccc;
+  --accent-color: #005bb5;
+  --hover-color: #007acc;
+  --active-color: #fff;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --delete-color: #e74c3c;
+  --delete-hover-color: #c0392b;
+  --upload-color: #2ecc71;
+  --upload-hover-color: #27ae60;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--bg-color);
+  font-family: var(--font-stack);
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  color: var(--primary-text-color);
+}
+
+/* Container */
+.management-container {
+  width: 950px;
+  margin: .2rem auto;
+  text-align: center;
+  background-color: var(--active-color);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: var(--accent-color);
+}
+
+.dropdown-container {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.dropdown-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--secondary-text-color);
+}
+
+.dropdown {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+  border-color: hsla(240, 100%, 50%, 0.33);
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.dropdown:focus {
+  border-color: var(--accent-color);
+  outline: none;
+}
+
+.database-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.database-card {
+  background-color: var(--active-color);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+  text-align: left;
+}
+
+.database-card h2 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.database-card p {
+  margin-bottom: 1rem;
+  color: var(--secondary-text-color);
+}
+
+.database-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.delete-button {
+  background-color: var(--delete-color);
+  color: #fff;
+}
+
+.delete-button:hover {
+  background-color: hsla(6, 100%, 50%, 0.622);
+
+}
+
+.upload-button {
+  background-color: var(--upload-color);
+  color: #fff;
+}
+
+.upload-button:hover {
+  background-color: var(--upload-hover-color);
+}

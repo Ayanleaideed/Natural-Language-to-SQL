@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static  %}
+{% block content %}
+  <link rel="stylesheet" href="{% static 'css/loading.css' %}">
+
+  <div class="home-container">
+    <div class="hero-section">
+      <div class="hero-messages">
+        <h1>Welcome to SQL Generator</h1>
+        <h1>Welcome to SQL TO NL</h1>
+        <h1>Welcome to SQL Management</h1>
+      </div>
+      <p>Quickly and easily create SQL queries using advanced AI technology. Start now to simplify your database management.</p>
+      <a href="#" class="cta-button">Get Started</a>
+
+    </div>
+
+    <div class="features-section">
+      <h2>Why Choose Us?</h2>
+      <div class="features">
+        <div class="feature">
+          <img src="{% static 'images/ai-powered.png' %}" alt="AI Powered">
+          <h3>AI-Powered</h3>
+          <p>Utilize advanced AI models like Google Gemini and GPT-3 Turbo for accurate SQL generation.</p>
+        </div>
+        <div class="feature">
+          <img src="{% static 'images/user-friendly.png' %}" alt="User Friendly">
+          <h3>User-Friendly</h3>
+          <p>Intuitive interface designed for ease of use, even for those with minimal technical expertise.</p>
+        </div>
+        <div class="feature">
+          <img src="{% static 'images/secure.png' %}" alt="Secure">
+          <h3>Secure</h3>
+          <p>Your data and API keys are stored locally, ensuring maximum security and privacy.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="coming-soon-section">
+      <h2>Exciting Features Coming Soon</h2>
+      <p>We are constantly working to bring you new and exciting features. Stay tuned for updates!</p>
+      <div class="coming-soon">Coming Soon</div>
+    </div>
+  </div>
+  <script src="{% static 'javaScript/loading.js' %}"></script>
+
+{% endblock %}

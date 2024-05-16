@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Generate SQL{% endblock %}
+
+{% block content %}
+  <link rel="stylesheet" href="{% static 'css/generate_sql.css' %}">
+  
+  <div class="coming-soon-container">
+    <h1>Generate SQL</h1>
+    <p>Users will soon be able to create or generate SQL queries based on their questions. This feature will utilize SQL models from either Google Gemini or GPT-3 Turbo. Users will have a limited number of requests, but once these are exhausted, they will have the option to provide API keys from OpenAI. These keys will be stored locally, allowing continued use of the models based on their API keys.</p>
+    <p><strong>NOTE:</strong> For security reasons, your API keys will be stored locally. This means you will need to provide them again after logging out, unless you opt-in for cloud storage by agreeing to have us store the keys in a secure database.</p> 
+    <div class="coming-soon">Coming Soon</div>
+    <!-- <div class="video-container">
+      <p>Video Preview</p>
+      <video src=""></video>
+    </div> -->
+  </div>
+{% endblock %}
