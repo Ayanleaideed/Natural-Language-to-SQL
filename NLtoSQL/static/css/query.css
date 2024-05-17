@@ -23,24 +23,96 @@ body {
   overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-.management-container {
-  max-width: 700px; /* Decreased the width */
+.main-container {
+  display: flex;
+  justify-content: space-between;
   margin: 2rem auto;
-  text-align: center;
+  padding: 1rem;
+  max-width: 1200px;
   background-color: var(--active-color);
-  padding: 15px; /* Reduced padding */
+  box-shadow: var(--box-shadow);
   border-radius: 18px;
+}
+
+/* Side Panels */
+.side-panel {
+  flex: 1;
+  padding: 1rem;
+  background-color: var(--bg-color);
+  box-shadow: var(--box-shadow);
+  margin: 0 1rem;
+  border-radius: 10px;
+}
+
+.side-panel h2 {
+  color: var(--accent-color);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+#search-history {
+  width: 95%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+}
+
+/* Center Panel */
+.center-panel {
+  flex: 2;
+  padding: 1rem;
+  background-color: var(--active-color);
+  border-radius: 10px;
   box-shadow: var(--box-shadow);
 }
 
-.h1-heading {
-  font-size: 1.5rem; /* Reduced font size */
-  margin-bottom: 1rem; /* Reduced margin */
-  color: var(--accent-color);
+.tab-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  background-color: var(--active-color);
+  border: 1px solid var(--border-color);
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-top: blue 1px solid;240, 100%, 50%, 0.698);
+  border-bottom: hsla(240, 100%, 50%, 0.698) 1px solid;
+}
+
+.tab-button:hover {
+  background-color: var(--hover-color);
+  color: white;
+
+}
+
+.tab-button.active {
+  background-color: var(--accent-color);
+  color: var(--active-color);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Form Styles */
+form {
+  border: 1px solid var(--border-color);
+  background-color: var(--active-color);
+  padding: 1rem;
+  box-shadow: var(--box-shadow);
+  border-radius: 10px;
 }
 
 .dropdown-container {
-  margin-bottom: 2rem; /* Reduced margin */
+  margin-bottom: 1rem;
 }
 
 .dropdown-container label {
@@ -48,18 +120,13 @@ body {
   margin-bottom: 0.5rem;
   font-weight: bold;
   color: var(--secondary-text-color);
-  font-size: medium; /* Reduced font size */
 }
 
 .dropdown {
   width: 100%;
-  max-width: 250px; /* Reduced max-width */
-  padding: 10px; /* Reduced padding */
-  border: 2px solid var(--border-color);
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
   border-radius: 5px;
-  border-color: hsla(240, 100%, 50%, 0.33);
-  font-size: 0.875rem; /* Reduced font size */
-  font-weight: bold;
   transition: border-color 0.3s ease;
 }
 
@@ -68,65 +135,32 @@ body {
   outline: none;
 }
 
-/* Container */
-.container {
-  max-width: 80%;
-  margin: 1rem auto;
-  text-align: center;
-}
-
-/* Typography */
-h1 {
-  color: var(--primary-text-color);
-  font-size: 28px; /* Reduced font size */
-
-}
-
-/* Form Styles */
-form {
-  border: 1px solid var(--border-color);
-  background-color: var(--active-color);
-  padding: 15px; /* Reduced padding */
-  box-shadow: var(--box-shadow);
-  max-width: 80%;
-  margin: auto;
-}
-
-input, textarea {
-  font-size: 24px;
-  border: 1px solid var(--border-color);
-  padding: 8px; /* Reduced padding */
-  width: calc(100% - 18px); /* Adjusted width to account for padding and border */
-  margin-bottom: 8px; /* Reduced margin */
-  transition: border-color 0.3s ease; /* Smooth transition */
-}
-
-input:focus, textarea:focus { /* Added focus state */
-  border-color: var(--accent-color);
-  outline: none;
-}
-
 textarea {
-  resize: none;
-  overflow-y: hidden;
+  width: 95%;
+  height: 100px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
   background-color: var(--textarea-bg-color);
   color: var(--textarea-text-color);
   font-family: monospace;
-  font-weight: bolder;
-  font-size: larger; /* Reduced font size */
-  /* text-transform: uppercase; */
+  resize: none;
 }
 
+textarea::placeholder {
+  color: hsla(51, 100%, 50%, 0.843);
+  opacity: 0.8;
+}
 
 input[type="submit"] {
-  font-size: 14px; /* Reduced font size */
+  font-size: 1rem;
   border: 1px solid var(--accent-color);
-  padding: 8px 15px; /* Reduced padding */
+  padding: 0.5rem 1rem;
   color: var(--active-color);
   background-color: var(--accent-color);
   cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+  border-radius: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 input[type="submit"]:hover {
@@ -136,9 +170,4 @@ input[type="submit"]:hover {
 input[type="submit"]:active {
   background-color: rgba(143, 143, 250, 0.601) !important;
   color: black !important;
-}
-
-textarea::placeholder {
-  color: hsla(51, 100%, 50%, 0.843);
-  opacity: 0.8;
 }

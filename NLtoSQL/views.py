@@ -5,8 +5,9 @@ from .models import DatabaseUpload, DatabaseType
 from django.contrib import messages
 import sqlite3
 import psycopg2
-from .utils import generate_sql_query, get_database_schema
-
+from .utils_func import generate_sql_query, get_database_schema, get_sql_question_answer , Alpha_and_beta_test
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 
 # Create your views here.
@@ -35,7 +36,8 @@ def query_func(request):
         nl_query = request.POST.get('NL_text')
 
         if 'sql_query' in request.POST:
-            if selected_database_id:
+            
+            if selected_database_id and sql_query:
                 try:
                     selected_database = DatabaseUpload.objects.get(id=selected_database_id)
                 except DatabaseUpload.DoesNotExist:
@@ -47,8 +49,8 @@ def query_func(request):
                 if db_type == 'SQLite':
                     try:
                         query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query)
-                    except sqlite3.DatabaseError:
-                        messages.error(request, "File is not a valid SQLite database.")
+                    except sqlite3.DatabaseError as e:
+                        messages.error(request, f"Incorrect Query..{e}")
                         return render(request, 'query.html', {'databases': databases})
                 elif db_type == 'PostgreSQL':
                     try:
@@ -66,47 +68,78 @@ def query_func(request):
                     'column_names': column_names
                 })
             else:
-                messages.warning(request, 'Make sure to select a database or upload a new one!')
+                messages.warning(request, 'Make sure to select a database and enter a SQL query.')
 
         elif 'nl_query' in request.POST:
-            if nl_query:
-                if selected_database_id:
+            if selected_database_id and nl_query:
+                try:
+                    selected_database = DatabaseUpload.objects.get(id=selected_database_id)
+                except DatabaseUpload.DoesNotExist:
+                    return HttpResponseRedirect('https://http.cat/images/409.jpg')
+
+                db_type = DatabaseType.objects.get(id=selected_database.type.id).name
+                db_path = selected_database.file.path
+                sql_query_generated = generate_sql_query(nl_query, databases_context=get_database_schema(db_path))
                 
+                if db_type == 'SQLite':
                     try:
-                        selected_database = DatabaseUpload.objects.get(id=selected_database_id)
-                    except DatabaseUpload.DoesNotExist:
-                        return HttpResponseRedirect('https://http.cat/images/409.jpg')
-
-                    db_type = DatabaseType.objects.get(id=selected_database.type.id).name
-                    db_path = selected_database.file.path
-                    # print(get_database_schema(db_path))
-                    sql_query_generated = generate_sql_query(nl_query, databases_context=get_database_schema(db_path))
-                    
-                    if db_type == 'SQLite':
-                        try:
-                            query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query_generated)
-                        except sqlite3.DatabaseError:
-                            messages.error(request, "File is not a valid SQLite database.")
-                            return render(request, 'query.html', {'databases': databases})
-                    elif db_type == 'PostgreSQL':
-                        try:
-                            query_result_with_headers, column_names = execute_postgres_query(db_path, sql_query_generated)
-                        except psycopg2.DatabaseError:
-                            messages.error(request, "Failed to query PostgreSQL database.")
-                            return render(request, 'query.html', {'databases': databases})
-                    else:
-                        messages.error(request, "Unsupported database type.")
+                        query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query_generated)
+                    except sqlite3.DatabaseError:
+                        messages.error(request, "File is not a valid SQLite database.")
                         return render(request, 'query.html', {'databases': databases})
-
-                    return render(request, 'query_results.html', {
-                        'databases': databases,
-                        'query_result': query_result_with_headers,
-                        'column_names': column_names
-                    })
+                    except sqlite3.Error as e:
+                        messages.error(request, f"SQLite error: {e}")
+                        return render(request, 'query.html', {'databases': databases})
+                elif db_type == 'PostgreSQL':
+                    try:
+                        query_result_with_headers, column_names = execute_postgres_query(db_path, sql_query_generated)
+                    except psycopg2.DatabaseError:
+                        messages.error(request, "Failed to query PostgreSQL database.")
+                        return render(request, 'query.html', {'databases': databases})
+                    except psycopg2.Error as e:
+                        messages.error(request, f"PostgreSQL error: {e}")
+                        return render(request, 'query.html', {'databases': databases})
                 else:
-                    messages.warning(request, 'Make sure to select a database or upload a new one!')
+                    messages.error(request, "Unsupported database type.")
+                    return render(request, 'query.html', {'databases': databases})
+
+                return render(request, 'query_results.html', {
+                    'databases': databases,
+                    'query_result': query_result_with_headers,
+                    'column_names': column_names
+                })
+            else:
+                messages.warning(request, 'Make sure to select a database and enter a natural language query.')
 
     return render(request, 'query.html', {'databases': databases})
+
+
+
+# sql generator helper functions
+@csrf_exempt
+def submit_code_view(request):
+    if request.method == 'POST':
+        code_text = request.POST.get('code_text')
+        context_data = request.POST.get('context_data')
+        generated_code = get_sql_question_answer(code_text, context_data)
+        return JsonResponse({'generated_code': generated_code})
+    return render(request, 'submit.html', {})
+
+
+
+def secret_code(request):
+    if request.method == 'POST':
+        secret_code = request.POST.get('secret_code')
+        code = Alpha_and_beta_test()
+        if secret_code == code:
+            messages.warning(request,'Welcome to the sql Generation hub Please be Responsible...')
+            return redirect('submit_code')
+        else:
+            messages.warning(request, 'You Code is incorrect Please type the correct Code!')
+    return render(request, 'secret_code.html', {})
+
+
+
 def execute_sqlite_query(db_path, query):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -159,8 +192,7 @@ def generate_sql(request):
   messages.info(request, 'This feature is Coming Soon. it will be available july 2024')
   return render(request, 'generate_sql.html', {})
 
-def secret_code(request):
-    return render(request, 'secret_code.html', {})
+
 
 
 # function to handle the database uploaded files

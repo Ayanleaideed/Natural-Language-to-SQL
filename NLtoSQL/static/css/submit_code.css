@@ -1,0 +1,99 @@
+:root {
+  --bg-color: #1e1e1e;
+  --font-color: #d4d4d4;
+  --border-color: #3c3c3c;
+  --button-bg: #007acc;
+  --button-hover-bg: #005a9e;
+  --button-color: #ffffff;
+  --code-bg: #252526;
+  --code-color: #dcdcdc;
+  --copy-button-bg: #444444;
+  --copy-button-hover-bg: #5a5a5a;
+}
+
+/* Global Styles */
+body {
+  /* background-color: var(--bg-color); */
+  background: linear-gradient(to bottom, #00053668, #022778e6);
+  font-family: Arial, sans-serif;
+  color: var(--font-color);
+}
+
+.submission-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 1rem;
+}
+
+textarea {
+  width: 90%;
+  height: 50px;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: hwb(203 0% 0% / 0.371);
+  color: hsl(51, 100%, 50%);
+  font-family: monospace;
+  resize: none;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--button-bg);
+  color: var(--button-color);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--button-hover-bg);
+}
+
+.response-container {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--code-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  position: relative;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+pre {
+  text-align: left;
+  color: var(--code-color);
+  background-color: var(--code-bg);
+  white-space: pre-wrap; /* Ensures long lines break and wrap to the next line */
+}
+
+#copy-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: var(--copy-button-bg);
+  color: var(--button-color);
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#copy-button:hover {
+  background-color: var(--copy-button-hover-bg);
+}

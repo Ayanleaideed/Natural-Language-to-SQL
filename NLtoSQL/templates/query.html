@@ -5,42 +5,63 @@
 
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 
-<div class="management-container">
-    <h1 class="h1-heading">Database Management</h1>
-    <div class="container">
-        <h1>Enter a SQL Query</h1>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="dropdown-container">
-              <label for="selected_database_sql">Select Current Database:</label>
-              <select name="selected_database" id="selected_database_sql" class="dropdown">
-                  <option value=""  selected>Select a database</option>
-                  {% for db in databases %}
-                      <option value="{{ db.id }}">{{ db.name }}</option>
-                  {% endfor %}
-              </select>
-          </div>
-          <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-          <input type="submit" name="sql_query" value="Submit">
-        </form>
+<div class="main-container">
+    <div class="side-panel" id="left-panel">
+        <h2>Query History</h2>
+        <input type="text" placeholder="Search History..." id="search-history">
+        <div class="query-history">
+            <!-- Query history items will be populated here -->
+        </div>
     </div>
 
-    <div class="container">
-        <h1>Enter a Natural Language Query</h1>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="dropdown-container">
-              <label for="selected_database_nl">Select Current Database:</label>
-              <select name="selected_database" id="selected_database_nl" class="dropdown">
-                  <option value="" disabled selected>Select a database</option>
-                  {% for db in databases %}
-                      <option value="{{ db.id }}">{{ db.name }}</option>
-                  {% endfor %}
-              </select>
-          </div>
-          <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-          <input type="submit" name="nl_query" value="Submit">
-        </form>
+    <div class="center-panel">
+        <div class="tab-container">
+            <button class="tab-button active" onclick="openTab(event, 'sqlQuery')">SQL Query</button>
+            <button class="tab-button" onclick="openTab(event, 'nlQuery')">Natural Language Query</button>
+        </div>
+        
+        <div id="sqlQuery" class="tab-content">
+            <h1>Enter a SQL Query</h1>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="dropdown-container">
+                  <label for="selected_database_sql">Select Current Database:</label>
+                  <select name="selected_database" id="selected_database_sql" class="dropdown">
+                      <option value="" selected>Select a database</option>
+                      {% for db in databases %}
+                          <option value="{{ db.id }}">{{ db.name }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <textarea   id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+              <input type="submit" name="sql_query" value="Submit">
+            </form>
+        </div>
+
+        <div id="nlQuery" class="tab-content" style="display:none">
+            <h1>Enter a Natural Language Query</h1>
+            <form method="POST">
+              {% csrf_token %}
+              <div class="dropdown-container">
+                  <label for="selected_database_nl">Select Current Database:</label>
+                  <select name="selected_database" id="selected_database_nl" class="dropdown">
+                      <option value="" disabled selected>Select a database</option>
+                      {% for db in databases %}
+                          <option value="{{ db.id }}">{{ db.name }}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+              <input type="submit" name="nl_query" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <div class="side-panel" id="right-panel">
+        <h2>Database Information</h2>
+        <div class="db-info">
+            <!-- Database info will be populated here -->
+        </div>
     </div>
 </div>
 

@@ -11,4 +11,6 @@ urlpatterns = [
     path('generate/', views.generate_sql, name='generate_sql'),
     path('upload_database/', views.upload_database, name='upload_database'),
     path('code/', views.secret_code, name='secret_code'),
+    path('submit_code/', views.submit_code_view, name='submit_code'),
+    
 ]

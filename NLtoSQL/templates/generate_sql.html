@@ -14,11 +14,15 @@
       <p>Video Preview</p>
       <video src=""></video>
     </div> -->
+    <form method="post">
+    {% csrf_token %}
     <div class="input-container">
-      <input type="email" class="email-input" placeholder="Your email address">
+      <input type="email" class="email-input" placeholder="Your email address" required>
       <button class="notify-button">Notify Me!</button>
     </div>
+  </form>
     <div class="secret-code">
+      <!-- <a href="{% url 'secret_code' %}">I have a secret code!</a> -->
       <a href="{% url 'secret_code' %}">I have a secret code!</a>
     </div>
   </div>

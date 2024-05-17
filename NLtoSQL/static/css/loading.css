@@ -1,13 +1,13 @@
 .home-container {
   text-align: center;
-  padding: 50px;
-  margin-top: 1.5rem;
+  padding: 20px;
+  margin-top: -2rem;
 }
 
 .hero-section {
   background: linear-gradient(to right, #4e54c8, #8f94fb);
   color: white;
-  padding: 50px;
+  padding: 80px;
   border-radius: 10px;
   margin-bottom: 30px;
   position: relative;
