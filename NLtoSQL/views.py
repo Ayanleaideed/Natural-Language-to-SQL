@@ -1,31 +1,108 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
-from django.core.files.storage import FileSystemStorage
+# from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
-from .models import DatabaseUpload, DatabaseType
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from .models import DatabaseUpload, DatabaseType, APIUsage, is_allowed_SQL_beta
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 import sqlite3
 import psycopg2
-from .utils_func import generate_sql_query, get_database_schema, get_sql_question_answer , Alpha_and_beta_test
+from .utils_func import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Sum
 
 
+def login_user(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        print(username, password)
+        # Try to authenticate the user
+        user = authenticate(request, username=username, password=password)
+        print('username: %s' % user)
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'You have successfully logged in {request.user.username}...')
+            return redirect('index')
+        else:
+            # Check if the user exists to provide a specific error message
+            user_exists = User.objects.filter(username=username).exists()
+            if user_exists:
+                messages.error(request, 'Invalid password. Please try again.')
+            else:
+                messages.error(request, 'Invalid username. Please try again.')
+            return render(request, 'auth/login.html', {'username': username})
+
+    # Show the login page for GET requests
+    return render(request, 'auth/login.html',  {})
+
+
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+    
+        try:
+            # Check if the username already exists to prevent duplication
+            if User.objects.filter(username=username).exists():
+                messages.warning(request, 'This username has already been taken.')
+                return redirect('register')
+
+            # Create new user if username is unique
+            user = User.objects.create_user(username=username, password=password)
+            user.save()
+            user = authenticate(request, username=username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Registration successful!')
+                return redirect('index')
+            else:
+                messages.error(request, 'Authentication failed. Please try again.')
+                return redirect('register')
+        except Exception as e:
+            messages.error(request, f'Registration failed: {e}')
+            return redirect('register')
+
+    return render(request, 'auth/register.html')
+
+
+    
+def logout_user(request):
+    username = request.user.username
+    logout(request)
+    messages.success(request, f'You have been logged out, {username}.')
+    return redirect('login_user')
+    
+@login_required(login_url=login_user)
 # Create your views here.
 def index(request):
-    message_from = (
-        "This user has limited features. This user is not able to delete any "
-        "database but is allowed to delete a list of a maximum of three queries. "
-        "The purpose of this is to prevent one anonymous user from deleting this "
-        "test database for everybody to test if they don't have a database to test on. "
-        "Thank you for understanding."
-    )
-    messages.warning(request, message_from)
+    user = request.user
+    if user.username == 'TestUser':
+            
+        message_from = (
+            "This user has limited features. This user is not able to delete any "
+            "database but is allowed to delete a list of a maximum of three queries. "
+            "The purpose of this is to prevent one anonymous user from deleting this "
+            "test database for everybody to test if they don't have a database to test on. "
+            "Thank you for understanding."
+        )
+        messages.warning(request, message_from)
+        return render(request, 'loading.html')
     return render(request, 'loading.html')
-    # return render(request, 'Secret_code.html')
     
+    # return render(request, 'Secret_code.html')
 
 
 
+
+    
+@login_required(login_url=login_user)
 def query_func(request):
     cur_user = request.user
     databases = DatabaseUpload.objects.filter(user=cur_user)
@@ -110,33 +187,127 @@ def query_func(request):
                 })
             else:
                 messages.warning(request, 'Make sure to select a database and enter a natural language query.')
+    dash_info = DatabaseUpload.objects.filter(user=cur_user).aggregate(total_size=Sum('size'))
+    dash_info = dash_info['total_size'] if dash_info['total_size'] is not None else 0
+    databases_name = [database.name for database in databases]
+    db_information = {'dash_info': dash_info, 'databases_name': databases_name}
+    return render(request, 'query.html', {'databases': databases, 'db_information': db_information})
 
-    return render(request, 'query.html', {'databases': databases})
+    
+@login_required(login_url=login_user)
+def delete_database(request, pk):
+    if request.method == 'POST':
+        database = DatabaseUpload.objects.get(pk=pk)
+        user = request.user
+        if database.user == user:
+            try:
+                database.delete()
+                messages.success(request, f'{database.name}: Database deleted successfully')
+                return redirect('management')
+            except Database.DoesNotExist as e:
+                messages.warning(request, f'Error has occurred while deleting database {e}')
+        messages.warning(request, f'{database.name}: Your not authorized to delete database')
+    database = DatabaseUpload.objects.get(id=pk)
+    return render(request, 'confirmation_delete.html', {'db_info': database})
 
-
-
-# sql generator helper functions
+    
+@login_required(login_url=login_user)
+# SQl generator helper functions
 @csrf_exempt
 def submit_code_view(request):
     if request.method == 'POST':
+        user = request.user
+        rate_limit_ok, wait_time = APIUsage.check_rate_limit(user, 'submit_code', 5, 3600)
+        
+        if not rate_limit_ok:
+            print(wait_time)
+            return JsonResponse({'generated_code': '', 
+                                 'messages': f"You have exceeded the rate limit. Please wait Until {get_time(wait_time)} seconds."})
+        
         code_text = request.POST.get('code_text')
         context_data = request.POST.get('context_data')
+
+        # Process the code_text and generate a response
         generated_code = get_sql_question_answer(code_text, context_data)
-        return JsonResponse({'generated_code': generated_code})
-    return render(request, 'submit.html', {})
+        
+        # Log the API usage
+        APIUsage.objects.create(user=user, endpoint='submit_code')
+        
+        return JsonResponse({'generated_code': generated_code, 'messages': ''})
+    return render(request, 'chat_submit.html', {})
 
 
-
+@login_required(login_url='login_user')
 def secret_code(request):
     if request.method == 'POST':
         secret_code = request.POST.get('secret_code')
         code = Alpha_and_beta_test()
-        if secret_code == code:
-            messages.warning(request,'Welcome to the sql Generation hub Please be Responsible...')
-            return redirect('submit_code')
-        else:
-            messages.warning(request, 'You Code is incorrect Please type the correct Code!')
+        cur_user = request.user
+        try:
+            is_allowed_user = is_allowed_SQL_beta.objects.get(user=cur_user)
+            if secret_code == code and is_allowed_user.Is_allowed:
+                messages.warning(request, 'Welcome to the SQL Generation hub. Please be responsible...')
+                return redirect('submit_code')
+            else:
+                messages.warning(request, 'Your code is incorrect. Please type the correct code!')
+        except ObjectDoesNotExist:
+            messages.warning(request, f'{cur_user.username}not found or Not allowed.')
+        except Exception as e:
+            messages.warning(request, f'Something went wrong... {e}')
     return render(request, 'secret_code.html', {})
+
+
+
+
+
+    
+@login_required(login_url=login_user)
+def management(request):
+    cur_user = request.user
+    databases = DatabaseUpload.objects.filter(user=cur_user)
+    return render(request, 'management.html', {'databases': databases})
+
+    
+@login_required(login_url=login_user)
+def generate_sql(request):
+    # cur_user = request.user
+    # is_allowed_user = is_allowed_SQL_beta.objects.get(user=cur_user)
+    # if is_allowed_user.Is_allowed:
+    #    redirect('secret_code')
+    # else:
+    messages.info(request, 'This feature is Coming Soon. it will be available july 2024')
+    return render(request, 'generate_sql.html', {})
+
+
+
+
+# function to handle the database uploaded files
+# @login_required(login_url=)
+def upload_database(request):
+    if request.method == 'POST':
+        if 'database_file' in request.FILES:
+            try:
+                database_file = request.FILES['database_file']
+                database_name = request.POST.get('database_name')
+                database_type = request.POST.get('database_type')
+                user = request.user
+
+                database_type = DatabaseType.objects.get(id=database_type)
+
+                # Save the file using the custom upload path
+                database_upload = DatabaseUpload(user=user, name=database_name, file=database_file, type=database_type)
+                database_upload.save()
+
+                messages.success(request, 'Database uploaded successfully!')
+                return redirect('management')
+            except Exception as e:
+                messages.error(request, f'An error occurred: {e}')
+        else:
+            messages.error(request, 'No file uploaded. Please try again.')
+           
+    Database_type = DatabaseType.objects.all()
+
+    return render(request, 'upload_database.html', {'Database_type': Database_type})
 
 
 
@@ -178,52 +349,6 @@ def execute_postgres_query(db_path, query):
     ]
     conn.close()
     return query_result_with_headers, column_names
-
-
-
-
-def management(request):
-    cur_user = request.user
-    databases = DatabaseUpload.objects.filter(user=cur_user)
-    return render(request, 'management.html', {'databases': databases})
-
-
-def generate_sql(request):
-  messages.info(request, 'This feature is Coming Soon. it will be available july 2024')
-  return render(request, 'generate_sql.html', {})
-
-
-
-
-# function to handle the database uploaded files
-# @login_required
-def upload_database(request):
-    if request.method == 'POST':
-        if 'database_file' in request.FILES:
-            try:
-                database_file = request.FILES['database_file']
-                database_name = request.POST.get('database_name')
-                database_type = request.POST.get('database_type')
-                user = request.user
-
-                database_type = DatabaseType.objects.get(id=database_type)
-
-                # Save the file using the custom upload path
-                database_upload = DatabaseUpload(user=user, name=database_name, file=database_file, type=database_type)
-                database_upload.save()
-
-                messages.success(request, 'Database uploaded successfully!')
-                return redirect('management')
-            except Exception as e:
-                messages.error(request, f'An error occurred: {e}')
-        else:
-            messages.error(request, 'No file uploaded. Please try again.')
-           
-    Database_type = DatabaseType.objects.all()
-
-    return render(request, 'upload_database.html', {'Database_type': Database_type})
-
-
 
 if __name__ == '__main__':
     debug = True

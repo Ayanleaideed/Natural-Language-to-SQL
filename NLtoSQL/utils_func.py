@@ -98,3 +98,15 @@ def Alpha_and_beta_test():
         return secret_code
     else:
         return None
+    
+    
+from datetime import datetime, timedelta
+
+def get_time(seconds):
+    # Calculate adjusted time
+    current_time = datetime.now()
+    wait_time = timedelta(seconds=seconds)
+    adjusted_time = current_time + wait_time
+    formatted_adjusted_time = adjusted_time.strftime("%I:%M %p")
+
+    return formatted_adjusted_time

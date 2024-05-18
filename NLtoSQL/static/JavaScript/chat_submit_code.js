@@ -1,24 +1,3 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}Submit Code{% endblock %}
-{% block content %}
-
-<link rel="stylesheet" href="{% static 'css/submit_code.css' %}">
-
-<div class="submission-container">
-    <h1>SQL & Coding Questions </h1>
-    <form id="codeForm">
-        <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
-        <button type="submit">Submit</button>
-    </form>
-    <div id="response-container" class="response-container" style="display: none;">
-        <pre name="response_output" id="response-output"></pre>
-        <button id="copy-button" onclick="copyToClipboard()">Copy</button>
-    </div>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
 $(document).ready(function() {
   $('#codeForm').submit(function(event) {
     event.preventDefault();
@@ -54,6 +33,3 @@ function copyToClipboard() {
   document.execCommand('copy');
   document.body.removeChild(textArea);
 }
-</script>
-
-{% endblock %}

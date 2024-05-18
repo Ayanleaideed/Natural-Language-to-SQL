@@ -89,7 +89,8 @@ h1 {
 .database-card {
   background-color: var(--active-color);
   padding: 20px;
-  border: 1px solid var(--border-color);
+  /* border: 1px solid var(--border-color); */
+  border: 2px solid rgba(255, 167, 16, 0.636);
   border-radius: 8px;
   box-shadow: var(--box-shadow);
   text-align: left;
@@ -109,6 +110,7 @@ h1 {
   padding: 0.5rem;
   background-color: #f9f9f9;
   border-left: 4px solid var(--accent-color);
+  border-right: 5px solid hsla(39, 100%, 50%, 0.856);
   border-radius: 4px;
   transition: background-color 0.3s ease;
 }
