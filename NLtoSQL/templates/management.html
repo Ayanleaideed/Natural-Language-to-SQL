@@ -32,8 +32,9 @@
                 <p>Uploaded at: <strong>{{ database.uploaded_at }}</strong></p>
                 <p>Size: <strong>{{ database.size }} bytes</p></strong>
                 <div class="database-buttons">
-                    <button class="button delete-button">Delete Database</button>
-                    <button class="button upload-button">Upload Sample Database</button>
+                  
+                    <a  href="{% url 'delete_database' database.id %}" class="button delete-button" style="text-decoration: none;">Delete Database</a>
+                    <a  href="{% url 'upload_database' %}" class="button upload-button" style="text-decoration: none;">Upload Sample Database</a>
                 </div>
             </div>
             {% endfor %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Submit Code{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/chat_submit_code.css' %}">
+
+<div class="submission-container">
+    <h1>SQL & Coding Questions </h1>
+    <form id="codeForm">
+        <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="response-container" class="response-container" style="display: none;">
+        <pre name="response_output" id="response-output"></pre>
+        <button id="copy-button" onclick="copyToClipboard()">Copy</button>
+    </div>
+</div>
+
+<div class="custom-alerts" id="message-container" style="display: none;">
+  <div class="custom-alert custom-alert-warning">
+    <span id="messages"></span>
+    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+  $('#codeForm').submit(function(event) {
+    event.preventDefault();
+
+    const codeText = $('#code-input').val();
+    const context_data = $('#response-output').text();
+
+    $.ajax({
+      type: 'POST',
+      url: '{% url "submit_code" %}', 
+      data: {
+        'code_text': codeText,
+        'context_data': context_data,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      },
+      success: function(response) {
+        $('#response-output').text(response.generated_code); 
+        if (response.messages) {
+          $('#messages').text(response.messages);
+          $('#response-output').text(response.messages)
+          $('#message-container').show();
+          $('#response-container').show();
+
+        } else {
+          $('#message-container').hide();
+        }
+        $('#response-container').show();
+      },
+      error: function(error) {
+        console.error('Error:', error);
+      }
+    });
+  });
+});
+
+function copyToClipboard() {
+  const copyText = document.getElementById('response-output').innerText;
+  const textArea = document.createElement('textarea');
+  textArea.value = copyText;
+  document.body.appendChild(textArea);
+  textArea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textArea);
+}
+</script>
+
+{% endblock %}

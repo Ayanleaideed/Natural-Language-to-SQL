@@ -11,6 +11,9 @@ body {
   background-color: #f4f4f4;
 }
 
+
+
+
 header {
   background-color: #343a40;
   color: #fff;
@@ -94,6 +97,10 @@ footer {
 .user-actions i {
   color: white;
   font-size: 20px;
+}
+
+.user-actions a {
+  text-decoration: none;
 }
 
 .auth-button {

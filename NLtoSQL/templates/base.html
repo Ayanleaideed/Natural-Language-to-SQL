@@ -29,15 +29,19 @@
   </div>
   
   <div class="user-actions">
+    {% if request.user.is_authenticated %}
+    
     <i class="fas fa-user"></i>
-    <span class="username">User</span>
-    <button class="auth-button" id="register-button">Register</button>
-    <button class="auth-button" id="login-button">Login</button>
+    <span style="font-size: large; font-family: Arial; margin-right: 3px;" class="username">{{request.user.username}} </span>
+    <a href="{% url 'logout_user' %}" class="auth-button" id="login-button">Logout</a>
+    {% else %}
+    <a href="{% url 'login_user' %}" class="auth-button" id="login-button">Login</a>
+    <a href="{% url 'register' %}" class="auth-button" id="register-button">Register</a>
+    {% endif %}
   </div>
 </div>
 
-<!-- Messages Section -->
-{% if request.user.username == 'admin' %}
+
   
 
 {% if messages %}
@@ -50,7 +54,7 @@
   {% endfor %}
 </div>
 {% endif %}
-{% endif %}
+
 
 <main>
   {% block content %}

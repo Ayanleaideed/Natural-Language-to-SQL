@@ -12,5 +12,10 @@ urlpatterns = [
     path('upload_database/', views.upload_database, name='upload_database'),
     path('code/', views.secret_code, name='secret_code'),
     path('submit_code/', views.submit_code_view, name='submit_code'),
+    path('delete_database/<int:pk>/', views.delete_database, name='delete_database'),
+    path('login_user/', views.login_user, name='login_user'),
+    path('logout_user/', views.logout_user, name='logout_user'),
+    path('register/', views.register, name='register'),
+    
     
 ]
