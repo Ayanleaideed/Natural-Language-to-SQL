@@ -44,7 +44,6 @@ env/
 *.jar
 *.war
 *.ear
-*.class
 
 # macOS
 *.DS_Store
@@ -62,11 +61,10 @@ Desktop.ini
 *.old
 *.swp
 *.swo
-*.class
-
-
 
 # Ignore database files
-databases/movies.db
-databases/
-databases
+databases/*.sqlite3
+databases/*.db
+
+# Ignore pycache files
+NLtoSQL/__pycache__/

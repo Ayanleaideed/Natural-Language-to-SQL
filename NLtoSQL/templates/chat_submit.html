@@ -11,6 +11,15 @@
         <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
         <button type="submit">Submit</button>
     </form>
+        <section class="wrapper" id="loading" class="loader" style="display: none;">
+          <div class="loader">
+              <div class="loading one"></div>
+              <div class="loading two"></div>
+              <div class="loading three"></div>
+              <div class="loading four"></div>
+
+          </div>
+      </section>
     <div id="response-container" class="response-container" style="display: none;">
         <pre name="response_output" id="response-output"></pre>
         <button id="copy-button" onclick="copyToClipboard()">Copy</button>
@@ -33,6 +42,8 @@ $(document).ready(function() {
     const codeText = $('#code-input').val();
     const context_data = $('#response-output').text();
 
+    $('#loading').show(); 
+
     $.ajax({
       type: 'POST',
       url: '{% url "submit_code" %}', 
@@ -42,19 +53,19 @@ $(document).ready(function() {
         'csrfmiddlewaretoken': '{{ csrf_token }}'
       },
       success: function(response) {
+        $('#loading').hide(); // Hide loading div
         $('#response-output').text(response.generated_code); 
         if (response.messages) {
           $('#messages').text(response.messages);
           $('#response-output').text(response.messages)
           $('#message-container').show();
-          $('#response-container').show();
-
         } else {
           $('#message-container').hide();
         }
         $('#response-container').show();
       },
       error: function(error) {
+        $('#loading').hide(); // Hide loading div
         console.error('Error:', error);
       }
     });

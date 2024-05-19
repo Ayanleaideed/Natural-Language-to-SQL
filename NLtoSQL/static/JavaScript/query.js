@@ -44,3 +44,26 @@ document.querySelectorAll('textarea').forEach(textarea => {
   textarea.addEventListener('keydown', indentOnTab);
   textarea.addEventListener('input', () => adjustRows(textarea)); // Adjust rows on input
 });
+
+function updateDatabaseInfo() {
+  var sqlSelect = document.getElementById('selected_database_sql');
+  var nlSelect = document.getElementById('selected_database_nl');
+
+  var selectedOption = sqlSelect.options[sqlSelect.selectedIndex];
+  if (sqlSelect.value === "") {
+      selectedOption = nlSelect.options[nlSelect.selectedIndex];
+  }
+  console.log(selectedOption)
+  var dbSize = selectedOption.getAttribute('data-size');
+  var dbName = selectedOption.getAttribute('data-name');
+  var dbUser = selectedOption.getAttribute('data-user');
+
+  document.getElementById('db-size').textContent = dbSize;
+  document.getElementById('db-name').textContent = dbName;
+  document.getElementById('db-user').textContent = dbUser;
+}
+
+// Initialize the right panel with the first database info if available
+document.addEventListener('DOMContentLoaded', function() {
+  updateDatabaseInfo();
+});

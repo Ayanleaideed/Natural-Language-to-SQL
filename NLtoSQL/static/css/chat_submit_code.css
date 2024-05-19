@@ -36,7 +36,7 @@ h1 {
 
 textarea {
   width: 90%;
-  height: 50px;
+  height: 80px;
   padding: 10px;
   margin-bottom: 1rem;
   border: 1px solid var(--border-color);
@@ -96,4 +96,55 @@ pre {
 
 #copy-button:hover {
   background-color: var(--copy-button-hover-bg);
+}
+
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+  background-color: rgba(101, 0, 160, 0.384);
+
+}
+.wrapper{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20vh;
+}
+.wrapper .loader{
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.loader .loading{
+  background: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50px;
+  margin: 0 10px;
+  animation: load 0.7s ease infinite;
+}
+.loader .loading.one{
+  animation-delay: 0.3s;
+}
+.loader .loading.two{
+  animation-delay: 0.4s;
+}
+.loader .loading.three{
+  animation-delay: 0.5s;
+}
+@keyframes load{
+  0%{
+      width: 30px;
+      height: 30px;
+  }
+  50%{
+      width: 20px;
+      height: 20px;
+
+  }
 }

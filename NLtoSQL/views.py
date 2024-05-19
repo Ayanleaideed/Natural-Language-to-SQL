@@ -14,15 +14,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum
 
 
+
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        print(username, password)
         # Try to authenticate the user
         user = authenticate(request, username=username, password=password)
-        print('username: %s' % user)
         if user is not None:
             login(request, user)
             messages.success(request, f'You have successfully logged in {request.user.username}...')
@@ -187,11 +186,8 @@ def query_func(request):
                 })
             else:
                 messages.warning(request, 'Make sure to select a database and enter a natural language query.')
-    dash_info = DatabaseUpload.objects.filter(user=cur_user).aggregate(total_size=Sum('size'))
-    dash_info = dash_info['total_size'] if dash_info['total_size'] is not None else 0
-    databases_name = [database.name for database in databases]
-    db_information = {'dash_info': dash_info, 'databases_name': databases_name}
-    return render(request, 'query.html', {'databases': databases, 'db_information': db_information})
+   
+    return render(request, 'query.html', {'databases': databases, })
 
     
 @login_required(login_url=login_user)
@@ -210,19 +206,19 @@ def delete_database(request, pk):
     database = DatabaseUpload.objects.get(id=pk)
     return render(request, 'confirmation_delete.html', {'db_info': database})
 
-    
-@login_required(login_url=login_user)
+
 # SQl generator helper functions
+@login_required(login_url=login_user)
 @csrf_exempt
-def submit_code_view(request):
+def chat_submit_view(request):
     if request.method == 'POST':
         user = request.user
-        rate_limit_ok, wait_time = APIUsage.check_rate_limit(user, 'submit_code', 5, 3600)
+        rate_limit_ok, wait_time = APIUsage.check_rate_limit(user, 'submit_code', 10, 3600)
         
         if not rate_limit_ok:
             print(wait_time)
             return JsonResponse({'generated_code': '', 
-                                 'messages': f"You have exceeded the rate limit. Please wait Until {get_time(wait_time)} seconds."})
+                                 'messages': f"You have exceeded the rate limit. Please wait Until {get_time(wait_time)}."})
         
         code_text = request.POST.get('code_text')
         context_data = request.POST.get('context_data')
@@ -251,7 +247,7 @@ def secret_code(request):
             else:
                 messages.warning(request, 'Your code is incorrect. Please type the correct code!')
         except ObjectDoesNotExist:
-            messages.warning(request, f'{cur_user.username}not found or Not allowed.')
+            messages.warning(request, f'{cur_user.username} not found or Not allowed.')
         except Exception as e:
             messages.warning(request, f'Something went wrong... {e}')
     return render(request, 'secret_code.html', {})
