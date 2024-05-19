@@ -26,14 +26,14 @@
               {% csrf_token %}
               <div class="dropdown-container">
                   <label for="selected_database_sql">Select Current Database:</label>
-                  <select name="selected_database" id="selected_database_sql" class="dropdown">
+                  <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
                       <option value="" selected>Select a database</option>
                       {% for db in databases %}
-                          <option value="{{ db.id }}">{{ db.name }}</option>
+                          <option value="{{ db.id }}" data-size="{{ db.size }}"  data-user="{{ db.user }}" data-name="{{ db.name }}">{{ db.name }}</option>
                       {% endfor %}
                   </select>
               </div>
-              <textarea   id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+              <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
               <input type="submit" name="sql_query" value="Submit">
             </form>
         </div>
@@ -44,10 +44,10 @@
               {% csrf_token %}
               <div class="dropdown-container">
                   <label for="selected_database_nl">Select Current Database:</label>
-                  <select name="selected_database" id="selected_database_nl" class="dropdown">
+                  <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
                       <option value="" disabled selected>Select a database</option>
                       {% for db in databases %}
-                          <option value="{{ db.id }}">{{ db.name }}</option>
+                          <option value="{{ db.id }}" data-size="{{ db.size }}"  data-user="{{ db.user }}" data-name="{{ db.name }}">{{ db.name }}</option>
                       {% endfor %}
                   </select>
               </div>
@@ -60,13 +60,12 @@
     <div class="side-panel" id="right-panel">
         <h2>Database Information</h2>
         <div class="db-info">
-            <!-- Database info will be populated here -->
-            <h4>Databases Size: {{db_information.dash_info}}</h4>
-            <h4>Databases Name: {{db_information.databases_name}}</h4>
+            <h4 >Database Size: <span  style="color: rgb(13, 130, 255);" id="db-size">{{ db_information.dash_info }}</span></h4>
+            <h4>Database Name: <span style="color: rgb(13, 130, 255);" id="db-name">{{ db_information.databases_name }}</span></h4>
+            <h4 >Uploaded by: <span  style="color: rgb(13, 130, 255);" id="db-user">{{ db_information.dash_info }}</span></h4>
         </div>
     </div>
 </div>
 
 <script src="{% static 'javaScript/query.js' %}"></script>
-
 {% endblock %}

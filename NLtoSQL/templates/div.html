@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Div Grid</title>
+  <style>
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+    .left-buttons, .right-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .grid {
+      background-color: #ccc;
+      padding: 10px 20px;
+      text-align: center;
+      border: 1px solid #999;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <div class="left-buttons">
+      <div class="grid">Button 1</div>
+      <div class="grid">Button 2</div>
+    </div>
+    <div class="right-buttons">
+      <div class="grid">Button 3</div>
+      <div class="grid">Button 4</div>
+    </div>
+  </div>
+</body>
+</html>

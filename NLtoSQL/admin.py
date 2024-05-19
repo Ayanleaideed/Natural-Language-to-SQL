@@ -14,6 +14,7 @@ class DatabaseUploadAdmin(admin.ModelAdmin):
 
 
 class APIUsageTable(admin.ModelAdmin):
+    actions = ['delete_selected'] 
     list_display = ('user', 'endpoint', 'timestamp')
     search_fields = ('user__username',)
     list_filter = ('user',)
