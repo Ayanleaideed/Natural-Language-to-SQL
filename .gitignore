@@ -68,3 +68,9 @@ databases/*.db
 
 # Ignore pycache files
 NLtoSQL/__pycache__/
+
+
+# Ignore database files
+databases/movies.db
+databases/
+databases
