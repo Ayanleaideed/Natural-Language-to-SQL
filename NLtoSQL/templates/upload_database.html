@@ -1,34 +1,45 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}Upload Database{% endblock %}
-    
+
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/management.css' %}">
 
 <div class="management-container">
-    <h1>Upload Database</h1>
-    
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="dropdown-container">
-            <label for="database-name">Database Name:</label>
-            <input type="text" name="database_name" class="dropdown" id="database-name" placeholder="Database Name" required>
-        </div>
-        <div class="dropdown-container">
-            <label for="database-type">Current Available Database:</label>
-            <select name="database_type" id="database-type" class="dropdown" required>
-                <option value="" disabled selected>Select a database</option>
-                {% for db_type in Database_type %}
-                    <option value="{{ db_type.id }}">{{ db_type.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="dropdown-container">
-            <label  for="database-file">Upload File:</label>
-            <input type="file" name="database_file" class="dropdown" id="database-file" required>
-        </div>
-        <button class="button upload-button" type="submit">Upload</button>
-        <a href="{% url 'management' %}" class="btn-back" >Back</a>
-    </form>
+  <h1>Upload Database</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="dropdown-container">
+      <label for="database-name">Database Name:</label>
+      <input type="text" name="database_name" class="dropdown" id="database-name" placeholder="Database Name" required>
+    </div>
+    <div class="dropdown-container">
+      <label for="database-type">Current Available Database:</label>
+      <select name="database_type" id="database-type" class="dropdown" required>
+        <option value="" disabled selected>Select a database</option>
+        {% for db_type in Database_type %}
+        <option value="{{ db_type.id }}">{{ db_type.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="dropdown-container">
+      <label for="database-type">Database Host Type:</label>
+      <select name="hostType" id="database-type" class="dropdown" required>
+        <option value="" disabled selected>Select a Host</option>
+        {% for choice in db_hosts %}
+        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+
+    <div class="dropdown-container">
+      <label for="database-file">Upload File:</label>
+      <input type="file" name="database_file" class="dropdown" id="database-file">
+    </div>
+    <button class="button upload-button" type="submit">Upload</button>
+    <a href="{% url 'management' %}" class="btn-back">Back</a>
+  </form>
 </div>
 {% endblock %}

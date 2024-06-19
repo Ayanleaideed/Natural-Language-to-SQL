@@ -3,9 +3,18 @@
 {% load custom_filters %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/query_result.css' %}">
-  
 {% if query_result %}
-  <h2>Query Result</h2>
+<div style="display: flex; justify-content: center; align-items: center;">
+  
+  <h1 style="color: hsla(0, 0%, 100%, 0.661); font-family: Arial, sans-serif; text-align: center;">{{ queryType }}:<span style="font-weight: bold; margin-left: 10px;">{{ query }}</span></h1>
+</div>
+<div style="display: flex; justify-content: center; align-items: center;">
+  <a href="/query" style="padding: 8px 13px; background-color: white; color: black; margin-left: 5.5rem; text-decoration: none;">
+    <i class="fa-solid fa-backward"></i> Back
+</a>
+
+    <h2>Query Result</h2>
+  </div>
   <table>
     <thead>
       <tr>

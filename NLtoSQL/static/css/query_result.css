@@ -1,139 +1,123 @@
-
 /* Variables for theming and consistency */
 :root {
-  --bg-color: #e0e0e0;
-  --table-bg-color: linear-gradient(45deg, #f5f5f5, #e1e1e1);
-  --primary-color: #5b1edb;
-  --header-color: #333;
-  --text-color: white;
-  --border-color: #ccc;
-  --even-row-color: #f8f8f8;
-  --odd-row-color: #ffffff;
-  --active-color: #3399ff;
-  --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  --bg-color: hsla(237, 51%, 8%, 0.934);
+  --text-color: #cccccc;
+  --header-bg-color: #007acc;
+  --header-text-color: #ffffff;
+  --row-hover-color: #264f78;
+  --border-color: #3f3f3f;
+  --accent-color: #ff4081;
 }
 
-/* Global Styles */
 body {
   background-color: var(--bg-color);
-  font-family: 'Arial', sans-serif;
+  font-family: 'Consolas', 'Courier New', monospace;
+  color: var(--text-color);
 }
 
 h2 {
-  color: #333;
+  color: var(--text-color);
   text-align: center;
   margin-top: 20px;
+  width: 85%;
 }
 
 /* Table Styles */
 table {
-  width: 100%; /* Made it responsive */
-  max-width: 1000px; /* Limit the maximum width */
+  width: 80%;
   margin: 20px auto;
   border-collapse: collapse;
-  border: 2px solid var(--primary-color);
-  background-image: var(--table-bg-color);
-  box-shadow: var(--shadow);
-  overflow: hidden; /* For rounded corner effect */
   border-radius: 8px;
+  overflow: hidden;
+  background-color: #2b2b2b;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 1s ease-in-out;
 }
 
-th, td {
-  text-align: center;
+th,
+td {
+  padding: 15px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease;
   text-transform: uppercase;
-  padding: 15px 10px;
-  transition: background-color 0.3s ease; /* Adding transitions */
 }
 
 th {
-  background-color: var(--header-color);
-  color: var(--text-color);
-  border-right: 1px solid var(--border-color);
+  background-color: var(--header-bg-color);
+  color: var(--header-text-color);
   position: sticky;
-  top: 0; /* Sticky header */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+  top: 0;
+  font-size: small !important;
 }
 
-td {
-  border-top: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
-  position: relative;
+tbody tr:hover {
+  background-color: var(--row-hover-color);
+  cursor: pointer;
 }
 
-td:last-child,
-th:last-child {
-  border-right: none;
+tbody tr:nth-child(even) {
+  background-color: #242424;
 }
 
-th:hover {
-  background-color: var(--text-color);
-  color: var(--header-color);
+tr:last-child td {
+  border-bottom: none;
 }
 
-td:hover {
-  background-color: rgba(91, 30, 219, 0.1); /* Light hover effect */
+/* Adding animations */
+/* Adding animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-td:active {
-  background-color: var(--active-color);
-  color: var(--text-color);
-  font-weight: bold;
+/* Applying the animation */
+.fade-in-element {
+  animation: fadeIn 1s ease-out both;
 }
 
-tr:nth-child(even) {
-  background-color: var(--even-row-color);
-}
-
-tr:nth-child(odd) {
-  background-color: var(--odd-row-color);
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  table, thead, tbody, th, td, tr {
+/* Responsive styles for smaller screens */
+@media (max-width: 600px) {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
     display: block;
   }
 
-  table thead tr {
-    display: none;
+  th {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
   }
 
-  table tbody tr {
-    margin-bottom: 15px;
-    border-bottom: 2px solid #ddd;
-  }
-
-  table tbody tr:last-child {
-    border-bottom: none;
-  }
-
-  table tbody td {
+  td {
+    border: none;
     position: relative;
     padding-left: 50%;
     text-align: left;
-    border: none;
-    border-bottom: 1px solid #ddd;
   }
 
-  table tbody td::before {
+  td:before {
     content: attr(data-label);
     position: absolute;
-    left: 0;
-    width: 50%;
-    padding-left: 15px;
-    font-weight: bold;
+    left: 10px;
+    width: 45%;
+    padding-right: 10px;
     white-space: nowrap;
+    font-weight: bold;
+    color: var(--text-color);
   }
 
-  table tbody td:last-child {
-    border-bottom: none;
-  }
-}
-
-@media (max-width: 600px) {
-  th, td {
-    padding: 10px 5px;
-    font-size: 14px;
+  tr {
+    border-bottom: 1px solid var(--border-color);
   }
 }

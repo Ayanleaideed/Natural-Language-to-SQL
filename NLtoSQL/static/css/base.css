@@ -42,7 +42,24 @@ footer {
   background-color: #005bb5;
   padding: 8px 13px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-bottom: 5px solid hsla(51, 100%, 75%, 0.641);
 }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 5px 6px;
+    height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    flex-direction: column;  */
+    padding: 4px 5px;
+  }
+}
+
 
 .nav-buttons {
   display: flex;
@@ -163,9 +180,11 @@ footer {
   color: #3c763d;
 }
 
-.custom-alert-danger {
-  background-color: #f2dede;
-  color: #a94442;
+.custom-alert-error {
+  background-color: #ff0000;
+  color: white;
+  text-transform: capitalize;
+  font-weight: bold;
 }
 
 
@@ -183,3 +202,5 @@ footer {
   position: absolute;
   right: 10px;
 }
+
+

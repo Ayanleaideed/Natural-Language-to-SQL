@@ -13,6 +13,7 @@
   --delete-hover-color: #c0392b;
   --upload-color: #2ecc71;
   --upload-hover-color: #27ae60;
+  --connection-color: #800080;
 }
 
 /* Global Styles */
@@ -41,7 +42,7 @@ body {
 
 h1 {
   font-size: 2rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem ;
   color: var(--accent-color);
 }
 
@@ -99,7 +100,6 @@ h1 {
 .database-card h2 {
   margin-top: 0;
   color: var(--accent-color);
-
 }
 
 .database-card p {
@@ -150,19 +150,20 @@ h1 {
 .upload-button:hover {
   background-color: var(--upload-hover-color);
 }
-
+.connecion-button {
+  background-color: var(--connection-color);
+  color: #fff;
+}
 .database-upload-card a {
   text-align: right;
   text-decoration: none;
 }
 
-
-
-.dropdown-container  {
+.dropdown-container {
   width: 60%;
 }
 
-.btn-back{
+.btn-back {
   background-color: rgba(0, 98, 255, 0.601) !important;
   margin-left: 10px;
   text-decoration: none !important;

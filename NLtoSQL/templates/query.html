@@ -4,68 +4,73 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
-
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
 <div class="main-container">
-    <div class="side-panel" id="left-panel">
-        <h2>Query History</h2>
-        <input type="text" placeholder="Search History..." id="search-history">
-        <div class="query-history">
-            <!-- Query history items will be populated here -->
-        </div>
+  <div class="side-panel" id="left-panel">
+    <h2>Query History</h2>
+    <input type="text" placeholder="Search History..." id="search-history">
+    <div class="query-history">
+      {% for row in query_history %}
+      <p class="query-entry" data-databaseName="{{ row.database }}">{{ row.query }}</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="center-panel">
+    <div class="tab-container">
+      <button class="tab-button active" onclick="openTab(event, 'sqlQuery')">SQL Query</button>
+      <button class="tab-button" onclick="openTab(event, 'nlQuery')">Natural Language Query</button>
     </div>
 
-    <div class="center-panel">
-        <div class="tab-container">
-            <button class="tab-button active" onclick="openTab(event, 'sqlQuery')">SQL Query</button>
-            <button class="tab-button" onclick="openTab(event, 'nlQuery')">Natural Language Query</button>
+    <div id="sqlQuery" class="tab-content">
+      <h1>Enter a SQL Query</h1>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="dropdown-container">
+          <label for="selected_database_sql">Select Current Database:</label>
+          <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
+            <option value="" selected>Select a database</option>
+            {% for db in databases %}
+            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-name="{{ db.name }}">{{ db.name }}</option>
+            {% endfor %}
+          </select>
         </div>
-        
-        <div id="sqlQuery" class="tab-content">
-            <h1>Enter a SQL Query</h1>
-            <form method="POST">
-              {% csrf_token %}
-              <div class="dropdown-container">
-                  <label for="selected_database_sql">Select Current Database:</label>
-                  <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
-                      <option value="" selected>Select a database</option>
-                      {% for db in databases %}
-                          <option value="{{ db.id }}" data-size="{{ db.size }}"  data-user="{{ db.user }}" data-name="{{ db.name }}">{{ db.name }}</option>
-                      {% endfor %}
-                  </select>
-              </div>
-              <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-              <input type="submit" name="sql_query" value="Submit">
-            </form>
-        </div>
-
-        <div id="nlQuery" class="tab-content" style="display:none">
-            <h1>Enter a Natural Language Query</h1>
-            <form method="POST">
-              {% csrf_token %}
-              <div class="dropdown-container">
-                  <label for="selected_database_nl">Select Current Database:</label>
-                  <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
-                      <option value="" disabled selected>Select a database</option>
-                      {% for db in databases %}
-                          <option value="{{ db.id }}" data-size="{{ db.size }}"  data-user="{{ db.user }}" data-name="{{ db.name }}">{{ db.name }}</option>
-                      {% endfor %}
-                  </select>
-              </div>
-              <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-              <input type="submit" name="nl_query" value="Submit">
-            </form>
-        </div>
+        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+        <input type="submit" name="sql_query" value="Execute">
+      </form>
     </div>
 
-    <div class="side-panel" id="right-panel">
-        <h2>Database Information</h2>
-        <div class="db-info">
-            <h4 >Database Size: <span  style="color: rgb(13, 130, 255);" id="db-size">{{ db_information.dash_info }}</span></h4>
-            <h4>Database Name: <span style="color: rgb(13, 130, 255);" id="db-name">{{ db_information.databases_name }}</span></h4>
-            <h4 >Uploaded by: <span  style="color: rgb(13, 130, 255);" id="db-user">{{ db_information.dash_info }}</span></h4>
+    <div id="nlQuery" class="tab-content" style="display:none">
+      <h1>Enter a Natural Language Query</h1>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="dropdown-container">
+          <label for="selected_database_nl">Select Current Database:</label>
+          <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
+            <option value="" disabled selected>Select a database</option>
+            {% for db in databases %}
+            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-name="{{ db.name }}">{{ db.name }}</option>
+            {% endfor %}
+          </select>
         </div>
+        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+        <input id="btn" type="submit" name="nl_query" value="Execute">
+      </form>
     </div>
+  </div>
+
+  <div class="side-panel" id="right-panel">
+    <h2>Database Information</h2>
+    <div class="db-info">
+      <h4>Database Size: <span id="db-size">${dbSize}</span></h4>
+      <h4>Database Name: <span id="db-name">${dbName}</span></h4>
+      <h4>Database Type: <span id="db-type">${dbType}</span></h4>
+      <h4>Uploaded by: <span id="db-user">${dbUser}</span></h4>
+    </div>
+  </div>
 </div>
 
 <script src="{% static 'javaScript/query.js' %}"></script>
+
+
 {% endblock %}
