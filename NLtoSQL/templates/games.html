@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/games.css' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <title>SQL Practice Game</title>
+
+<div class="container-game">
+  <header>
+      <h1>SQL Practice Game</h1>
+      <p>Sharpen your SQL skills with interactive questions</p>
+  </header>
+  <main>
+      <div class="loader" id="loader">
+          <div class="box-load1"></div>
+          <div class="box-load2"></div>
+          <div class="box-load3"></div>
+          <div class="box-load4"></div>
+          <div class="box-load5"></div>
+      </div>
+      <div id="game-content">
+          {% if welcome_message %}
+              <div class="welcome-box">
+                  <h2>{{ welcome_message }}</h2>
+                  <form method="post" onsubmit="showLoader()">
+                      {% csrf_token %}
+                      <input type="hidden" name="previous_question" value="">
+                      <input type="hidden" name="user_answer" value="">
+                      <input type="hidden" name="user_performance" value="True">
+                      <button type="submit">Start Game</button>
+                  </form>
+              </div>
+          {% else %}
+              <div class="question-box">
+                  <h2>Next Question:</h2>
+                  <p>{{ next_question }}</p>
+                  <p><strong>Difficulty:</strong> {{ difficulty }}</p>
+              </div>
+              <form method="post" onsubmit="showLoader()">
+                  {% csrf_token %}
+                  <div class="answer-box">
+                      <label for="user_answer">Your Answer:</label>
+                      <textarea  id="auto-growing-textarea"    id="user_answer" name="user_answer" rows="4" required ></textarea>
+                  </div>
+                  <input type="hidden" name="previous_question" value="{{ next_question }}">
+                  <input type="hidden" name="user_performance" value="True"> <!-- Assuming initial performance is true -->
+                  <button type="submit">Submit</button>
+              </form>
+          {% endif %}
+      </div>
+  </main>
+</div>
+
+<script>
+  function showLoader() {
+      document.getElementById('loader').style.display = 'flex';
+      document.getElementById('game-content').classList.add('hidden');
+  }
+  document.addEventListener("DOMContentLoaded", function() {
+        const textarea = document.getElementById("auto-growing-textarea");
+
+        textarea.addEventListener("input", function() {
+            // Reset the height to auto so the scroll height can be calculated correctly
+            textarea.style.height = "auto";
+            // Set the height to the scroll height plus some extra padding
+            textarea.style.height = textarea.scrollHeight + "px";
+        });
+
+        // Optionally, trigger the input event once on page load to set the initial height
+        textarea.dispatchEvent(new Event('input'));
+    });
+</script>
+{% endblock content %}

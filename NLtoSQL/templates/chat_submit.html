@@ -6,20 +6,19 @@
 <link rel="stylesheet" href="{% static 'css/chat_submit_code.css' %}">
 
 <div class="submission-container">
-    <h1>SQL & Coding Questions </h1>
+    <h1>SQL & Coding Questions</h1>
     <form id="codeForm">
         <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
-        <button type="submit">Submit</button>
+        <button id="submit" type="submit" style="display: none;">Submit</button> <!-- Initially hidden -->
     </form>
-        <section class="wrapper" id="loading" class="loader" style="display: none;">
-          <div class="loader">
-              <div class="loading one"></div>
-              <div class="loading two"></div>
-              <div class="loading three"></div>
-              <div class="loading four"></div>
-
-          </div>
-      </section>
+    <section class="wrapper" id="loading" class="loader" style="display: none;">
+        <div class="loader">
+            <div class="loading one"></div>
+            <div class="loading two"></div>
+            <div  class="loading three"></div>
+            <div class="loading four"></div>
+        </div>
+    </section>
     <div id="response-container" class="response-container" style="display: none;">
         <pre name="response_output" id="response-output"></pre>
         <button id="copy-button" onclick="copyToClipboard()">Copy</button>
@@ -27,59 +26,75 @@
 </div>
 
 <div class="custom-alerts" id="message-container" style="display: none;">
-  <div class="custom-alert custom-alert-warning">
-    <span id="messages"></span>
-    <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
-  </div>
+    <div class="custom-alert custom-alert-warning">
+        <span id="messages"></span>
+        <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+let lastSubmittedCode = $('#code-input').val(); // Initialize with current value
+
 $(document).ready(function() {
-  $('#codeForm').submit(function(event) {
-    event.preventDefault();
-
-    const codeText = $('#code-input').val();
-    const context_data = $('#response-output').text();
-
-    $('#loading').show(); 
-
-    $.ajax({
-      type: 'POST',
-      url: '{% url "submit_code" %}', 
-      data: {
-        'code_text': codeText,
-        'context_data': context_data,
-        'csrfmiddlewaretoken': '{{ csrf_token }}'
-      },
-      success: function(response) {
-        $('#loading').hide(); // Hide loading div
-        $('#response-output').text(response.generated_code); 
-        if (response.messages) {
-          $('#messages').text(response.messages);
-          $('#response-output').text(response.messages)
-          $('#message-container').show();
+    $('#code-input').on('input', function() {
+        let currentText = $(this).val();
+        if (currentText !== lastSubmittedCode) {
+            $('#submit').show(); // Show submit button when there are changes
         } else {
-          $('#message-container').hide();
+            $('#submit').hide(); // Hide again if text matches the last submitted code
         }
-        $('#response-container').show();
-      },
-      error: function(error) {
-        $('#loading').hide(); // Hide loading div
-        console.error('Error:', error);
-      }
     });
-  });
+
+    $('#codeForm').submit(function(event) {
+        event.preventDefault();
+        const codeText = $('#code-input').val();
+
+        if (codeText === lastSubmittedCode) {
+            alert('Please make changes to your code before resubmitting.');
+            return; // Prevent form submission if code hasn't changed
+        }
+
+        lastSubmittedCode = codeText; // Update last submitted code
+        $('#submit').hide(); // Optionally hide the button again after submit
+        $('#loading').show();
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "submit_code" %}',
+            data: {
+                'code_text': codeText,
+                'context_data': $('#response-output').text(),
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                $('#loading').hide();
+                $('#response-output').text(response.generated_code);
+                if (response.messages) {
+                    $('#messages').text(response.messages);
+                    $('#response-output').text(response.messages)
+                    $('#message-container').show();
+                } else {
+                    $('#message-container').hide();
+                }
+                $('#response-container').show();
+            },
+            error: function(error) {
+                $('#loading').hide();
+                console.error('Error:', error);
+            }
+        });
+    });
 });
 
 function copyToClipboard() {
-  const copyText = document.getElementById('response-output').innerText;
-  const textArea = document.createElement('textarea');
-  textArea.value = copyText;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textArea);
+    const copyText = document.getElementById('response-output').innerText;
+    const textArea = document.createElement('textarea');
+    textArea.value = copyText;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
 }
 </script>
 

@@ -10,19 +10,37 @@ function openTab(evt, tabName) {
   }
   document.getElementById(tabName).style.display = "block";
   evt.currentTarget.className += " active";
+
+  // Store the current tab in localStorage
+  localStorage.setItem('currentTab', tabName);
 }
 
-// Set default tab
-document.getElementsByClassName("tab-button")[0].click();
+// Function to load the default or previously clicked tab
+function loadTab() {
+  var currentTab = localStorage.getItem('currentTab');
+  if (currentTab) {
+    document.querySelector(`.tab-button[onclick="openTab(event, '${currentTab}')"]`).click();
+  } else {
+    // Set default tab
+    document.getElementsByClassName("tab-button")[0].click();
+  }
+}
+
+// Load the tab when the page loads
+window.onload = loadTab;
+
 
 function adjustRows(textarea) {
-  const lines = textarea.value.split('\n');
-  const totalLines = lines.length + 1; // +1 to always maintain one row ahead
-  textarea.rows = totalLines;
+  // Only adjust the height if there's content
+  if (textarea.value.trim() !== "") {
+    textarea.style.height = '96px'; // Reset height
+    textarea.style.height = (textarea.scrollHeight) + 'px'; // Set the height to the scroll height of the content
+  }
 }
 
+
 function indentOnTab(event) {
-  if (event.keyCode === 9) { // Check if the pressed key is the Tab key (key code 9)
+  if (event.key === 'Tab') { // Check if the pressed key is the Tab key
     event.preventDefault(); // Prevent the default Tab key behavior
 
     // Get the current selection and caret position
@@ -45,6 +63,7 @@ document.querySelectorAll('textarea').forEach(textarea => {
   textarea.addEventListener('input', () => adjustRows(textarea)); // Adjust rows on input
 });
 
+
 function updateDatabaseInfo() {
   var sqlSelect = document.getElementById('selected_database_sql');
   var nlSelect = document.getElementById('selected_database_nl');
@@ -53,17 +72,38 @@ function updateDatabaseInfo() {
   if (sqlSelect.value === "") {
       selectedOption = nlSelect.options[nlSelect.selectedIndex];
   }
-  console.log(selectedOption)
+
   var dbSize = selectedOption.getAttribute('data-size');
   var dbName = selectedOption.getAttribute('data-name');
   var dbUser = selectedOption.getAttribute('data-user');
+  var dbType = selectedOption.getAttribute('data-type');
 
   document.getElementById('db-size').textContent = dbSize;
   document.getElementById('db-name').textContent = dbName;
   document.getElementById('db-user').textContent = dbUser;
+  document.getElementById('db-type').textContent = dbType;
 }
 
 // Initialize the right panel with the first database info if available
 document.addEventListener('DOMContentLoaded', function() {
   updateDatabaseInfo();
 });
+
+
+function handleBindQuery() {
+  document.querySelectorAll('.query-entry').forEach(item => {
+      item.onclick = function() {
+          document.getElementById('sql-input').value = this.textContent.trim();
+          document.getElementById('nl-input').value = this.textContent.trim();
+      }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', handleBindQuery);
+
+
+
+
+
+
+
