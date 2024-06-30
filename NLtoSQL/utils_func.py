@@ -1,6 +1,6 @@
 import os
 import sqlite3
-
+import re
 import google.generativeai as genai
 import mysql.connector
 import psycopg2
@@ -144,6 +144,7 @@ def get_sql_question_answer(question):
 
         # Extract and clean up the SQL query
         sql_query = response.text.strip()
+        sql_query = re.sub(r'\*\*', '', sql_query)
         sql_query = sql_query.replace('```sql', '').replace('```', '').strip()
 
         return sql_query

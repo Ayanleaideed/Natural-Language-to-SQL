@@ -154,7 +154,7 @@ def query_func(request):
                 query = sql_query
 
                 # save the query to history models
-                if QueryHistory.objects.filter(query=query).exists():
+                if QueryHistory.objects.filter(Q(query=query.upper()) | Q(query=query.lower())).exists():
                     pass
                 else:
                     q = QueryHistory.objects.create(
@@ -239,6 +239,7 @@ def query_func(request):
                         user=request.user,
                         query=query,
                         database=selected_database,
+                        query_nl_text=nl_query,
                         query_type=queryType
                         )
                     q.save()
@@ -274,44 +275,52 @@ def delete_database(request, pk):
 
 # SQl generator helper functions
 @login_required(login_url=login_user)
-@csrf_exempt
+# @csrf_exempt
 def chat_submit_view(request):
     user = request.user
     try:
-        is_auth_user_bate = is_allowed_SQL_beta.objects.get(user=user)
-        if not is_auth_user_bate.Is_allowed:
+        # Check if the user is allowed to access SQL generation
+        is_auth_user_beta = is_allowed_SQL_beta.objects.get(user=user)
+        if not is_auth_user_beta.Is_allowed:
+          # Redirect to home or some other page if not allowed
             return redirect('/')
-    except is_allowed_SQL_beta.DoesNotExist as e:
-            messages.warning(request, 'You have not Permission to access this page!!')
-            return redirect('/')
+    except is_allowed_SQL_beta.DoesNotExist:
+        messages.warning(request, 'You do not have permission to access this page!')
+        return redirect('/')
+    # Check if secret code validation is done
+    if not request.session.get('secret_code_validated', False):
+      # Redirect to secret_code view if not validated
+        return redirect('secret_code')
+
 
     if request.method == 'POST':
+        # Check rate limit
         rate_limit_ok, wait_time = APIUsage.check_rate_limit(user, 'submit_code', 20, 3600)
-
         if not rate_limit_ok:
-
-            return JsonResponse({'generated_code': '',
-                                 'messages': f"You have exceeded the rate limit. Please wait Until {get_time(wait_time)}."})
+            return JsonResponse({
+                'generated_code': '',
+                'messages': f"You have exceeded the rate limit. Please wait until {get_time(wait_time)}."
+            })
 
         code_text = request.POST.get('code_text')
         context_data = request.POST.get('context_data')
 
-        # Process the code_text and generate a response
+        # Process the code_text and generate a response ( using get_sql_question_answer function from the utils)
         generated_code = get_sql_question_answer(code_text)
 
         if not generated_code:
-            messages.error(request, 'Could not generate answer for this request...')
+            messages.error(request, 'Could not generate an answer for this request...')
             return JsonResponse({'generated_code': '', 'messages': generated_code})
-
 
         # Log the API usage
         APIUsage.objects.create(user=user, endpoint='submit_code')
 
         return JsonResponse({'generated_code': generated_code, 'messages': ''})
+
     return render(request, 'chat_submit.html', {})
 
 
-@login_required(login_url='login_user')
+@login_required(login_url='/login/')
 def secret_code(request):
     if request.method == 'POST':
         secret_code = request.POST.get('secret_code')
@@ -320,14 +329,18 @@ def secret_code(request):
         try:
             is_allowed_user = is_allowed_SQL_beta.objects.get(user=cur_user)
             if secret_code == code and is_allowed_user.Is_allowed:
-                messages.warning(request, 'Welcome to the SQL Generation hub. Please be responsible...')
-                return redirect('submit_code')
+                # Set a session variable to mark that secret code validation is done
+                request.session['secret_code_validated'] = True
+                messages.success(request, 'Welcome to the SQL Generation hub. Please be responsible...')
+                return redirect('submit_code')  # Redirect to the submit_code if successful entry
             else:
                 messages.warning(request, 'Your code is incorrect. Please type the correct code!')
         except ObjectDoesNotExist:
-            messages.warning(request, f'{cur_user.username} not found or Not allowed.')
+            messages.warning(request, f'{cur_user.username} not found or not allowed.')
+
         except Exception as e:
             messages.warning(request, f'Something went wrong... {e}')
+
     return render(request, 'secret_code.html', {})
 
 

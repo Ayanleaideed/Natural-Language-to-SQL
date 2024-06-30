@@ -55,7 +55,7 @@ class is_allowed_table(admin.ModelAdmin):
     list_filter = ('user',)
 
 class QueryHistoryAdmin(admin.ModelAdmin):
-    list_display = ('id','user', 'query', 'database', 'query_type', 'timestamp')
+    list_display = ('id','user', 'query', 'query_nl_text', 'database', 'query_type', 'timestamp')
     search_fields = ('user__username', 'database')
     list_filter = ('timestamp', 'query_type',)
     actions = [reset_table_and_identity, save_to_csv]

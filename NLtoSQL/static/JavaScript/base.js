@@ -11,3 +11,18 @@ const body = document.body;
       body.style.color = isDarkMode ? 'black' : 'black';
 
     });
+
+
+    // Get references to the elements
+const userProfile = document.getElementById('userProfile');
+const userIcon = document.getElementById('userIcon');
+
+// Add click event listener to the icon
+userIcon.addEventListener('click', function() {
+    // Toggle the visibility of userProfile div
+    if (userProfile.style.display === 'none') {
+        userProfile.style.display = 'block';
+    } else {
+        userProfile.style.display = 'none';
+    }
+});

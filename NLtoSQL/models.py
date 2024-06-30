@@ -100,7 +100,8 @@ class QueryHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     query = models.TextField()
     database = models.ForeignKey(DatabaseUpload, on_delete=models.CASCADE)
-    query_type = models.CharField(max_length=100)  #
+    query_type = models.CharField(max_length=100)
+    query_nl_text = models.CharField(max_length=255, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
 
