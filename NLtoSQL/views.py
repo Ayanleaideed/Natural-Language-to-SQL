@@ -108,7 +108,7 @@ def query_func(request):
     cur_user = request.user
     databases = DatabaseUpload.objects.filter(user=cur_user)
     query_history = QueryHistory.objects.filter(user=cur_user).order_by('-timestamp')[:4]
-
+    query_populate = {'type':'', 'val':''}
 
     if request.method == 'POST':
         selected_database_id = request.POST.get('selected_database')
@@ -116,7 +116,7 @@ def query_func(request):
         nl_query = request.POST.get('NL_text')
 
         if 'sql_query' in request.POST:
-
+            query_populate = {'type':'sql_query', 'val': sql_query}
             if selected_database_id and sql_query:
                 try:
                     selected_database = DatabaseUpload.objects.get(id=selected_database_id)
@@ -136,9 +136,9 @@ def query_func(request):
                 elif db_type == 'PostgreSQL':
                     try:
                         db_path = selected_database
-                        query_result_with_headers, column_names = execute_postgres_query(request.user, db_path, sql_query)
-                    except psycopg2.DatabaseError:
-                        messages.error(request, "Failed to query PostgreSQL database.")
+                        query_result_with_headers, column_names,action = execute_postgres_query(request.user, db_path, sql_query)
+                    except psycopg2.DatabaseError as e:
+                        messages.error(request, f"Failed to query PostgreSQL database. {e}")
                         return render(request, 'query.html', {'databases': databases})
                 elif db_type == 'MySQL':
                     try:
@@ -164,6 +164,8 @@ def query_func(request):
                         query_type=queryType
                         )
                     q.save()
+                if len(query) > 100:
+                    query = 'Query is too big to Display'
                 return render(request, 'query_results.html', {
                     'databases': databases,
                     'query_result': query_result_with_headers,
@@ -175,6 +177,9 @@ def query_func(request):
                 messages.warning(request, 'Make sure to select a database and enter a SQL query.')
 
         elif 'nl_query' in request.POST:
+            query_populate = {'type':'nl_query', 'val': nl_query}   
+
+
             if selected_database_id and nl_query:
                 try:
                     selected_database = DatabaseUpload.objects.get(id=selected_database_id)
@@ -192,9 +197,6 @@ def query_func(request):
                     sql_query_generated = generate_sql_query(db_type, nl_query, databases_context=get_database_schema(db_type, selected_database))
 
 
-
-
-
                 if db_type == 'SQLite':
                     try:
                         query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query_generated)
@@ -207,20 +209,21 @@ def query_func(request):
                 elif db_type == 'PostgreSQL':
                     try:
                         db_path = selected_database
-                        query_result_with_headers, column_names = execute_postgres_query(request.user, db_path, sql_query_generated)
-                    except psycopg2.DatabaseError:
-                        messages.error(request, "Failed to query PostgreSQL database.")
+                        query_result_with_headers, column_names, action = execute_postgres_query(request.user, db_path, sql_query_generated)
+                    except psycopg2.DatabaseError as e:
+                        messages.error(request, f"Failed to query PostgreSQL database. {e}")
                         return render(request, 'query.html', {'databases': databases})
                     except psycopg2.Error as e:
                         messages.error(request, f"PostgreSQL error: {e}")
                         return render(request, 'query.html', {'databases': databases})
                 elif db_type == 'MySQL':
                     try:
-                        print(sql_query_generated)
                         db_path = selected_database
                         query_result_with_headers, column_names = execute_mysql_query(request.user, db_path, sql_query_generated)
-                    except psycopg2.DatabaseError:
-                        messages.error(request, "Failed to query PostgreSQL database.")
+                        if query_result_with_headers is None and column_names is None:
+                            return 'query'
+                    except psycopg2.DatabaseError as e:
+                        messages.error(request, f"Failed to query PostgreSQL database. {e}")
                         return render(request, 'query.html', {'databases': databases})
                     except psycopg2.Error as e:
                         messages.error(request, f"PostgreSQL error: {e}")
@@ -244,6 +247,11 @@ def query_func(request):
                         )
                     q.save()
 
+                if query_result_with_headers is None and column_names is None:
+                            messages.success(request, f'Your {action.type}: {action.val} on the database has been successful')
+                            return redirect('query')
+                if len(query) > 100:
+                    query = 'Query is too big to Display'
                 return render(request, 'query_results.html', {
                     'databases': databases,
                     'query_result': query_result_with_headers,
@@ -253,7 +261,8 @@ def query_func(request):
                 })
             else:
                 messages.warning(request, 'Make sure to select a database and enter a natural language query.')
-    return render(request, 'query.html', {'databases': databases, 'query_history': query_history})
+    
+    return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
 
 
 @login_required(login_url=login_user)
@@ -410,35 +419,57 @@ def execute_sqlite_query(db_path, query):
         {column_names[i]: value for i, value in enumerate(row)}
         for row in query_result
     ]
+
     conn.close()
     return query_result_with_headers, column_names
 
-def execute_postgres_query(user, db_path, query):
 
-    # PostgreSQL connection details
-    #find the database object
+from dataclasses import dataclass
+
+@dataclass
+class QueryType:
+    type: str
+    val: str = None
+
+def execute_postgres_query(user, db_path, query):
+    # Find the database object
     db_conn = DatabaseUpload.objects.get(user=user, id=db_path.id)
-    # return a database configuration object based on the given database object
+    # Return a database configuration object based on the given database object
     db_conn = DatabaseConnection.objects.get(database=db_conn)
-    # connection to host database
+    # Connection to host database
     conn = psycopg2.connect(
-            dbname=db_conn.dbname,
-            user= db_conn.user,
-            password=db_conn.password,
-            host=db_conn.host,
-            port=db_conn.port
+        dbname=db_conn.dbname,
+        user=db_conn.user,
+        password=db_conn.password,
+        host=db_conn.host,
+        port=db_conn.port
     )
 
     cursor = conn.cursor()
     cursor.execute(query)
-    query_result = cursor.fetchall()
-    column_names = [desc[0] for desc in cursor.description]
-    query_result_with_headers = [
-        {column_names[i]: value for i, value in enumerate(row)}
-        for row in query_result
-    ]
+
+    # Determine the type of query and act accordingly
+    query_type = query.strip().split()[0].upper()
+    query_result_with_headers = None
+    column_names = None
+
+    query_type_obj = QueryType(type=query_type, val=query)
+
+    if query_type == "SELECT":
+        query_result = cursor.fetchall()
+        column_names = [desc[0] for desc in cursor.description]
+        query_result_with_headers = [
+            {column_names[i]: value for i, value in enumerate(row)}
+            for row in query_result
+        ]
+    else:
+        conn.commit()
+
     conn.close()
-    return query_result_with_headers, column_names
+    # print(query_result_with_headers, column_names, query_type_obj)
+    return query_result_with_headers, column_names, query_type_obj
+
+
 
 def execute_mysql_query(user, db_path, query):
     # MySQL connection details

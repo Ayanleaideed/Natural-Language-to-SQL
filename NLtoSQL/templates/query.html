@@ -29,14 +29,24 @@
         <div class="dropdown-container">
           <label for="selected_database_sql">Select Current Database:</label>
           <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
+            {% if query_populate.db %}
+            <option value="" selected>{{query_populate.db}}</option>
+            {% else %}
             <option value="" selected>Select a database</option>
+            {% endif %}
             {% for db in databases %}
-            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-name="{{ db.name }}">{{ db.name }}</option>
+            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType}}" data-name="{{ db.name }}">{{ db.name }}</option>
             {% endfor %}
           </select>
         </div>
+        {% if query_populate.type == 'sql_query' %}
+        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val}}</textarea>
+        {% else %}
         <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+        {% endif %}
         <input type="submit" name="sql_query" value="Execute">
+
+
       </form>
     </div>
 
@@ -49,11 +59,16 @@
           <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
             <option value="" disabled selected>Select a database</option>
             {% for db in databases %}
-            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-name="{{ db.name }}">{{ db.name }}</option>
+            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType}}" data-name="{{ db.name }}">{{ db.name }}</option>
             {% endfor %}
           </select>
         </div>
+        {% if query_populate.type == 'nl_query' %}
+        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val}}</textarea>
+        {% else %}
         <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
+
+        {% endif %}
         <input id="btn" type="submit" name="nl_query" value="Execute">
       </form>
     </div>
@@ -65,6 +80,7 @@
       <h4>Database Size: <span id="db-size">${dbSize}</span></h4>
       <h4>Database Name: <span id="db-name">${dbName}</span></h4>
       <h4>Database Type: <span id="db-type">${dbType}</span></h4>
+      <h4>Database Host: <span id="db-host">${dbHost}</span></h4>
       <h4>Uploaded by: <span id="db-user">${dbUser}</span></h4>
     </div>
   </div>
