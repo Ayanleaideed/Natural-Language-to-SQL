@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Query Section{% endblock %}
-{% block content %}
 
+{% block title %}Query Section{% endblock %}
+
+{% block content %}
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+
 <div class="main-container">
   <div class="side-panel" id="left-panel">
     <h2>Query History</h2>
@@ -29,24 +31,27 @@
         <div class="dropdown-container">
           <label for="selected_database_sql">Select Current Database:</label>
           <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
-            {% if query_populate.db %}
-            <option value="" selected>{{query_populate.db}}</option>
-            {% else %}
-            <option value="" selected>Select a database</option>
-            {% endif %}
+            <option value="">Select a database</option>
             {% for db in databases %}
-            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType}}" data-name="{{ db.name }}">{{ db.name }}</option>
+            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
+                  {% if not query_populate.db and forloop.first %}
+                      selected
+                  {% elif db.id == query_populate.db %}
+                      selected
+                  {% endif %}>
+              {{ db.name }}
+            </option>
+
             {% endfor %}
           </select>
         </div>
         {% if query_populate.type == 'sql_query' %}
-        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val}}</textarea>
+        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{ query_populate.val }}</textarea>
+        <input type="submit" name="sql_query" value="Execute">
         {% else %}
         <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-        {% endif %}
         <input type="submit" name="sql_query" value="Execute">
-
-
+        {% endif %}
       </form>
     </div>
 
@@ -57,19 +62,27 @@
         <div class="dropdown-container">
           <label for="selected_database_nl">Select Current Database:</label>
           <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
-            <option value="" disabled selected>Select a database</option>
+            <option value="">Select a database</option>
             {% for db in databases %}
-            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType}}" data-name="{{ db.name }}">{{ db.name }}</option>
+              <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
+                {% if not query_populate.db and forloop.first %}
+                        selected
+                    {% elif db.id == query_populate.db %}
+                        selected
+                    {% endif %}>
+                {{ db.name }}
+              </option>
+
             {% endfor %}
           </select>
         </div>
         {% if query_populate.type == 'nl_query' %}
-        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val}}</textarea>
+        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val }}</textarea>
+        <input id="btn" type="submit" name="nl_query" value="Execute">
         {% else %}
         <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-
-        {% endif %}
         <input id="btn" type="submit" name="nl_query" value="Execute">
+        {% endif %}
       </form>
     </div>
   </div>
@@ -77,16 +90,15 @@
   <div class="side-panel" id="right-panel">
     <h2>Database Information</h2>
     <div class="db-info">
-      <h4>Database Size: <span id="db-size">${dbSize}</span></h4>
-      <h4>Database Name: <span id="db-name">${dbName}</span></h4>
-      <h4>Database Type: <span id="db-type">${dbType}</span></h4>
-      <h4>Database Host: <span id="db-host">${dbHost}</span></h4>
-      <h4>Uploaded by: <span id="db-user">${dbUser}</span></h4>
+      <h4>Database Size: <span id="db-size"></span></h4>
+      <h4>Database Name: <span id="db-name"></span></h4>
+      <h4>Database Type: <span id="db-type"></span></h4>
+      <h4>Database Host: <span id="db-host"></span></h4>
+      <h4>Uploaded by: <span id="db-user"></span></h4>
     </div>
   </div>
 </div>
 
 <script src="{% static 'javaScript/query.js' %}"></script>
-
 
 {% endblock %}

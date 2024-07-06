@@ -34,7 +34,7 @@ function adjustRows(textarea) {
   // Only adjust the height if there's content
   if (textarea.value.trim() !== "") {
     textarea.style.height = '96px'; // Reset height
-    textarea.style.height = (textarea.scrollHeight) + 'px'; // Set the height to the scroll height of the content
+    textarea.style.height = (textarea.scrollHeight) + 'px';
   }
 }
 
@@ -63,30 +63,37 @@ document.querySelectorAll('textarea').forEach(textarea => {
   textarea.addEventListener('input', () => adjustRows(textarea)); // Adjust rows on input
 });
 
-
 function updateDatabaseInfo() {
   var sqlSelect = document.getElementById('selected_database_sql');
   var nlSelect = document.getElementById('selected_database_nl');
 
-  var selectedOption = sqlSelect.options[sqlSelect.selectedIndex];
-  if (sqlSelect.value === "") {
-      selectedOption = nlSelect.options[nlSelect.selectedIndex];
+  // Determine which dropdown triggered the change
+  var selectedOption = document.activeElement.id === 'selected_database_sql' ? sqlSelect.options[sqlSelect.selectedIndex] : nlSelect.options[nlSelect.selectedIndex];
+
+  if (selectedOption) {
+    var dbSize = selectedOption.getAttribute('data-size');
+    var dbName = selectedOption.getAttribute('data-name');
+    var dbUser = selectedOption.getAttribute('data-user');
+    var dbType = selectedOption.getAttribute('data-type');
+    var dbHost = selectedOption.getAttribute('data-host');
+
+    document.getElementById('db-size').textContent = dbSize;
+    document.getElementById('db-name').textContent = dbName;
+    document.getElementById('db-user').textContent = dbUser;
+    document.getElementById('db-type').textContent = dbType;
+    document.getElementById('db-host').textContent = dbHost;
+  } else {
+    console.log('No option selected');
   }
-
-  var dbSize = selectedOption.getAttribute('data-size');
-  var dbName = selectedOption.getAttribute('data-name');
-  var dbUser = selectedOption.getAttribute('data-user');
-  var dbType = selectedOption.getAttribute('data-type');
-
-  document.getElementById('db-size').textContent = dbSize;
-  document.getElementById('db-name').textContent = dbName;
-  document.getElementById('db-user').textContent = dbUser;
-  document.getElementById('db-type').textContent = dbType;
 }
 
 // Initialize the right panel with the first database info if available
 document.addEventListener('DOMContentLoaded', function() {
   updateDatabaseInfo();
+
+  // Add event listeners for both dropdowns
+  document.getElementById('selected_database_sql').addEventListener('change', updateDatabaseInfo);
+  document.getElementById('selected_database_nl').addEventListener('change', updateDatabaseInfo);
 });
 
 

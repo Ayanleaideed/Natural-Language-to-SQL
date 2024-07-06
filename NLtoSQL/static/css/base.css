@@ -1,19 +1,27 @@
-body, html {
+/* Reset and basic styles */
+body,
+html {
   margin: 0;
   padding: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
-}
-
-body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
 }
 
+/* Light Mode */
+body.light-mode {
+  background-color: #f4f4f4;
+  color: #000;
+}
 
+/* Dark Mode */
+body.dark-mode {
+  background-color: #121212;
+  color: black;
+}
 
-
+/* Header */
 header {
   background-color: #343a40;
   color: #fff;
@@ -21,50 +29,43 @@ header {
   text-align: center;
 }
 
+/* Main Content Area */
 main {
   flex: 1;
   padding: 2rem;
+  margin-top: 45px;
+  overflow-y: auto;
 }
 
+/* Footer */
 footer {
   background-color: #343a40;
   color: #fff;
   text-align: center;
-  padding: .5rem;
+  padding: 0.2rem;
   position: relative;
   bottom: 0;
 }
 
+/* Navbar */
 .navbar {
   display: flex;
   height: 45px;
   align-items: center;
-  background-color: #005bb5;
+  background-color: #333;
   padding: 8px 13px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  border-bottom: 5px solid hsla(51, 100%, 75%, 0.641);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 5px 6px;
-    height: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .navbar {
-    flex-direction: column;  */
-    padding: 4px 5px;
-  }
-}
-
-
+/* Navigation Buttons */
 .nav-buttons {
   display: flex;
-  gap: 15px;
-  margin-left: 20px;
+  align-items: center;
+  gap: 40px;
+  margin-left: 20%;
 }
 
 .nav-link {
@@ -86,24 +87,21 @@ footer {
 .nav-link:hover {
   background-color: #005bb5;
   color: #fff;
-  transition: .5s ease-in-out;
 }
 
+/* Logo */
 .logo {
   color: white;
   font-size: 24px;
   font-weight: bold;
-  margin-right: 20px;
+  margin-left: 100px;
 }
 
 .logo-link {
   text-decoration: none;
 }
 
-.logo {
-  display: inline;
-}
-
+/* User Actions */
 .user-actions {
   display: flex;
   align-items: center;
@@ -125,7 +123,7 @@ footer {
   color: white;
   border: 1px solid white;
   border-radius: 5px;
-  padding: 8.5px 12px;
+  padding: 7px 15px;
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
@@ -143,7 +141,6 @@ footer {
 }
 
 /* Custom Alerts */
-
 .custom-alerts {
   margin: 20px;
   display: flex;
@@ -187,12 +184,6 @@ footer {
   font-weight: bold;
 }
 
-
-.custom-alert-info {
-  background-color: hsla(193, 97%, 48%, 0.633);
-  color: hsla(0, 0%, 0%, 0.674);
-}
-
 .close-btn {
   background: none;
   border: none;
@@ -203,11 +194,12 @@ footer {
   right: 10px;
 }
 
+/* User Profile Settings */
 .userProfile-settings {
   display: none;
   position: absolute;
-  top: 50px;
-  right: 20px;
+  top: 6.5%;
+  right: 0;
   background-color: hsl(202, 100%, 45%);
   width: 300px;
   text-align: center;
@@ -219,15 +211,30 @@ footer {
   padding: 10px;
   z-index: 1000;
 }
-.userProfile-settings .active{
-  color: black;
-  background-color: black;
+
+.userProfile-settings.active {
+  display: block;
 }
 
-.userProfile-settings strong{
-  color: hsla(0, 0%, 100%, 0.76);
-  font-weight: bolder;
-  font-size: large;
-
+.userProfile-settings {
+  animation: slideDown 0.3s ease-in-out forwards;
 }
 
+@keyframes slideDown {
+  from {
+    top: 6%;
+    opacity: 0.5;
+  }
+  to {
+    top: 6.5%;
+    opacity: 1;
+  }
+}
+
+/* Wrapper */
+.wrapper {
+  background-color: hsla(240, 33%, 26%, 0.39);
+  border-radius: 15px;
+  padding: 10px;
+  box-shadow: 0px 0px 10px rgba(224, 248, 255, 0.719);
+}

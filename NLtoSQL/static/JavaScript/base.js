@@ -1,28 +1,34 @@
-const body = document.body;
-    const themeToggle = document.getElementById('theme-toggle');
+document.addEventListener('DOMContentLoaded', (event) => {
+  const body = document.body;
+  const themeToggle = document.getElementById('theme-toggle');
+  const userProfile = document.getElementById('userProfile');
+  const userIcon = document.getElementById('userIcon');
 
-    themeToggle.addEventListener('click', () => {
-      body.classList.toggle('dark-mode');
-      const isDarkMode = body.classList.contains('dark-mode');
-      themeToggle.classList.toggle('fa-moon', !isDarkMode);
-      themeToggle.classList.toggle('fa-sun', isDarkMode);
-      themeToggle.style.color = isDarkMode ? '#ffffff' : '#ffc107';
-      body.style.backgroundColor = isDarkMode ? 'black' : '#ffffff';
-      body.style.color = isDarkMode ? 'black' : 'black';
+  // Check local storage for theme
+  const currentTheme = localStorage.getItem('theme') || 'light-mode';
+  body.classList.add(currentTheme);
 
-    });
+  // Update icon based on current theme
+  themeToggle.className = currentTheme === 'dark-mode' ? 'fas fa-sun' : 'fas fa-moon';
 
-
-    // Get references to the elements
-const userProfile = document.getElementById('userProfile');
-const userIcon = document.getElementById('userIcon');
-
-// Add click event listener to the icon
-userIcon.addEventListener('click', function() {
-    // Toggle the visibility of userProfile div
-    if (userProfile.style.display === 'none') {
-        userProfile.style.display = 'block';
+  themeToggle.addEventListener('click', () => {
+    if (body.classList.contains('light-mode')) {
+      body.classList.replace('light-mode', 'dark-mode');
+      themeToggle.className = 'fas fa-sun';
+      localStorage.setItem('theme', 'dark-mode');
     } else {
-        userProfile.style.display = 'none';
+      body.classList.replace('dark-mode', 'light-mode');
+      themeToggle.className = 'fas fa-moon';
+      localStorage.setItem('theme', 'light-mode');
     }
+  });
+
+  // Toggle the visibility of userProfile div
+  userIcon.addEventListener('click', function() {
+    if (userProfile.style.display === 'none' || userProfile.style.display === '') {
+      userProfile.style.display = 'block';
+    } else {
+      userProfile.style.display = 'none';
+    }
+  });
 });

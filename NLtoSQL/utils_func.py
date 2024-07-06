@@ -6,7 +6,6 @@ import mysql.connector
 import psycopg2
 from dotenv import load_dotenv
 from mysql.connector import Error
-
 from .models import DatabaseConnection
 
 # Load environment variables from a .env file
@@ -93,6 +92,8 @@ def get_database_schema(db_type, database_path):
         return error
     except mysql.connector.Error as e:
         error = f"MySQL database error: {e}"
+    except Exception as e:
+      return e
 
     return schema
 

@@ -1,6 +1,4 @@
-
 import sqlite3
-
 import mysql.connector
 import psycopg2
 from django.contrib import messages
@@ -12,11 +10,10 @@ from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
-
+from dataclasses import dataclass
 from .models import (HOST_CHOICES, APIUsage, DatabaseConnection, DatabaseType,
-                     DatabaseUpload, QueryHistory, is_allowed_SQL_beta)
+                     DatabaseUpload, QueryHistory, is_allowed_SQL_beta, DatabasePermissions)
 from .utils_func import *
-
 
 def login_user(request):
     if request.method == 'POST':
@@ -81,48 +78,83 @@ def logout_user(request):
     messages.success(request, f'You have been logged out, {username}.')
     return redirect('login_user')
 
+
 @login_required(login_url=login_user)
-# Create your views here.
 def index(request):
     user = request.user
+    # Filter DatabasePermissions objects where at least one permission is True
+    user_permissions = DatabasePermissions.objects.filter(
+        Q(can_select=True) | Q(can_insert=True) | Q(can_update=True) | Q(can_delete=True),
+        user=user )
     if user.username == 'TestUser':
+        # Generate the message with user permissions
+        permissions_list = ', '.join([
+            perm for perm in ['select', 'insert', 'update', 'delete']
+            if getattr(user_permissions.first(), f'can_{perm}', False)
+        ])
 
         message_from = (
             "This user has limited features. This user is not able to delete any "
             "database but is allowed to delete a list of a maximum of three queries. "
             "The purpose of this is to prevent one anonymous user from deleting this "
             "test database for everybody to test if they don't have a database to test on. "
-            "Thank you for understanding."
+            "Thank you for understanding. "
+            f"Here are the user permissions that are allowed for this Account: {permissions_list.upper()}"
         )
         messages.warning(request, message_from)
-        return render(request, 'loading.html')
+
     return render(request, 'loading.html')
 
     # return render(request, 'Secret_code.html')
 
 
 
+@dataclass
+class Query_populate:
+    type: str = None
+    val: str = None
+    db: int = -1
+
+    @classmethod
+    def from_session(cls, session):
+        return cls(
+            type=session.get('type', None),
+            val=session.get('val', None),
+            db=session.get('selected_db', -1)
+        )
 
 @login_required(login_url=login_user)
 def query_func(request):
+
     cur_user = request.user
     databases = DatabaseUpload.objects.filter(user=cur_user)
     query_history = QueryHistory.objects.filter(user=cur_user).order_by('-timestamp')[:4]
-    query_populate = {'type':'', 'val':''}
+    query_populate = Query_populate().from_session(request.session)
 
     if request.method == 'POST':
         selected_database_id = request.POST.get('selected_database')
         sql_query = request.POST.get('SQL_text')
         nl_query = request.POST.get('NL_text')
 
+        if sql_query:
+            request.session['selected_db'] = -1
+            request.session['val'] = sql_query.strip()
+            request.session['type'] = 'sql_query'
+        elif nl_query:
+            request.session['val'] = nl_query.strip()
+            request.session['type'] = 'nl_query'
+            request.session['selected_db'] = -1
+
+        if selected_database_id:
+            request.session['selected_db'] = selected_database_id
+
         if 'sql_query' in request.POST:
-            query_populate = {'type':'sql_query', 'val': sql_query}
             if selected_database_id and sql_query:
                 try:
                     selected_database = DatabaseUpload.objects.get(id=selected_database_id)
                 except DatabaseUpload.DoesNotExist:
                     messages.warning(request, 'Database %s does not exist ' % selected_database_id)
-                    return redirect(query_func(request))
+                    return redirect(query_func)
 
                 db_type = DatabaseType.objects.get(id=selected_database.type.id).name
                 db_path = selected_database.file.path
@@ -132,40 +164,40 @@ def query_func(request):
                         query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query)
                     except sqlite3.DatabaseError as e:
                         messages.error(request, f"Incorrect Query..{e}")
-                        return render(request, 'query.html', {'databases': databases})
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 elif db_type == 'PostgreSQL':
                     try:
-                        db_path = selected_database
-                        query_result_with_headers, column_names,action = execute_postgres_query(request.user, db_path, sql_query)
+                        query_result_with_headers, column_names, action = execute_postgres_query(request.user, selected_database, sql_query)
+                        if action:
+                            messages.success(request, f"The database action: {action.type.upper()}' was successfully: {action.val}")
+                        # print("query_result_with_headers", query_result_with_headers)
                     except psycopg2.DatabaseError as e:
                         messages.error(request, f"Failed to query PostgreSQL database. {e}")
-                        return render(request, 'query.html', {'databases': databases})
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 elif db_type == 'MySQL':
                     try:
-                        db_path = selected_database
-                        query_result_with_headers, column_names = execute_mysql_query(request.user, db_path, sql_query)
-                    except psycopg2.DatabaseError:
-                        messages.error(request, "Failed to query PostgreSQL database.")
-                        return render(request, 'query.html', {'databases': databases})
+                        query_result_with_headers, column_names = execute_mysql_query(request.user, selected_database, sql_query)
+                    except psycopg2.DatabaseError as e:
+                        messages.error(request, f"Failed to query MySQL database. {e}")
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 else:
                     messages.error(request, "Unsupported database type.")
-                    return render(request, 'query.html', {'databases': databases})
-                queryType = "SQL"
-                query = sql_query
+                    return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
 
-                # save the query to history models
-                if QueryHistory.objects.filter(Q(query=query.upper()) | Q(query=query.lower())).exists():
-                    pass
-                else:
-                    q = QueryHistory.objects.create(
-                        user=request.user,
-                        query=query,
-                        database=selected_database,
-                        query_type=queryType
-                        )
+                queryType = "SQL"
+                query = sql_query.lower()
+
+                if not QueryHistory.objects.filter(query__iexact=query).exists():
+                    q = QueryHistory.objects.create(user=request.user, query=query, database=selected_database, query_type=queryType)
                     q.save()
+                if not query_result_with_headers:
+                  query_result_with_headers = f"The database action: {action.type.upper()}' was successfully: {action.val}"
+                if column_names  == None and action == None:
+                  messages.warning(request, query_result_with_headers)
+
                 if len(query) > 100:
                     query = 'Query is too big to Display'
+                # print('nl', 'query_result_with_headers', query_result_with_headers)
                 return render(request, 'query_results.html', {
                     'databases': databases,
                     'query_result': query_result_with_headers,
@@ -177,15 +209,11 @@ def query_func(request):
                 messages.warning(request, 'Make sure to select a database and enter a SQL query.')
 
         elif 'nl_query' in request.POST:
-            query_populate = {'type':'nl_query', 'val': nl_query}   
-
-
             if selected_database_id and nl_query:
                 try:
                     selected_database = DatabaseUpload.objects.get(id=selected_database_id)
                 except DatabaseUpload.DoesNotExist:
-                    # return HttpResponseRedirect('https://http.cat/images/409.jpg')
-                    return redirect(query)
+                    return redirect(query_func)
 
                 db_type = DatabaseType.objects.get(id=selected_database.type.id).name
                 db_path = selected_database.file.path
@@ -196,62 +224,47 @@ def query_func(request):
                 elif db_type == 'MySQL':
                     sql_query_generated = generate_sql_query(db_type, nl_query, databases_context=get_database_schema(db_type, selected_database))
 
-
                 if db_type == 'SQLite':
                     try:
                         query_result_with_headers, column_names = execute_sqlite_query(db_path, sql_query_generated)
-                    except sqlite3.DatabaseError:
-                        messages.error(request, "File is not a valid SQLite database.")
-                        return render(request, 'query.html', {'databases': databases})
-                    except sqlite3.Error as e:
+                    except sqlite3.DatabaseError as e:
                         messages.error(request, f"SQLite error: {e}")
-                        return render(request, 'query.html', {'databases': databases})
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 elif db_type == 'PostgreSQL':
                     try:
-                        db_path = selected_database
-                        query_result_with_headers, column_names, action = execute_postgres_query(request.user, db_path, sql_query_generated)
+                        query_result_with_headers, column_names, action = execute_postgres_query(request.user, selected_database, sql_query_generated)
+                        if action:
+                            messages.success(request, f"The database action: {action.type.upper()}' was successfully: {action.val}")
                     except psycopg2.DatabaseError as e:
                         messages.error(request, f"Failed to query PostgreSQL database. {e}")
-                        return render(request, 'query.html', {'databases': databases})
-                    except psycopg2.Error as e:
-                        messages.error(request, f"PostgreSQL error: {e}")
-                        return render(request, 'query.html', {'databases': databases})
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 elif db_type == 'MySQL':
                     try:
-                        db_path = selected_database
-                        query_result_with_headers, column_names = execute_mysql_query(request.user, db_path, sql_query_generated)
-                        if query_result_with_headers is None and column_names is None:
-                            return 'query'
+                        query_result_with_headers, column_names = execute_mysql_query(request.user, selected_database, sql_query_generated)
                     except psycopg2.DatabaseError as e:
-                        messages.error(request, f"Failed to query PostgreSQL database. {e}")
-                        return render(request, 'query.html', {'databases': databases})
-                    except psycopg2.Error as e:
-                        messages.error(request, f"PostgreSQL error: {e}")
-                        return render(request, 'query.html', {'databases': databases})
+                        messages.error(request, f"Failed to query MySQL database. {e}")
+                        return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
                 else:
                     messages.error(request, "Unsupported database type.")
-                    return render(request, 'query.html', {'databases': databases})
-                queryType = "NL"
-                query = sql_query_generated
+                    return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
 
-                # save the query to history models
-                if QueryHistory.objects.filter(Q(query=query.upper()) | Q(query=query.lower())).exists():
-                    pass
-                else:
-                    q = QueryHistory.objects.create(
-                        user=request.user,
-                        query=query,
-                        database=selected_database,
-                        query_nl_text=nl_query,
-                        query_type=queryType
-                        )
+                queryType = "NL"
+                query = sql_query_generated.lower()
+
+                if not QueryHistory.objects.filter(query__iexact=query).exists():
+                    q = QueryHistory.objects.create(user=request.user, query=query, database=selected_database, query_nl_text=nl_query, query_type=queryType)
                     q.save()
 
-                if query_result_with_headers is None and column_names is None:
-                            messages.success(request, f'Your {action.type}: {action.val} on the database has been successful')
-                            return redirect('query')
+                if not query_result_with_headers:
+                  query_result_with_headers = f"The database action: {action.type.upper()}' was successfully: {action.val}"
+                if column_names  == None and action == None:
+                  messages.warning(request, query_result_with_headers)
+                  return redirect(query_func)
                 if len(query) > 100:
-                    query = 'Query is too big to Display'
+                    if action:
+                      if action.type.upper() == "Select":
+                        query = 'Query is too big to Display'
+
                 return render(request, 'query_results.html', {
                     'databases': databases,
                     'query_result': query_result_with_headers,
@@ -261,24 +274,31 @@ def query_func(request):
                 })
             else:
                 messages.warning(request, 'Make sure to select a database and enter a natural language query.')
-    
-    return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate':query_populate})
 
+    query_populate = Query_populate(type=request.session.get('type'), val=request.session.get('val'), db=int(request.session.get('selected_db', -1)))
+    return render(request, 'query.html', {'databases': databases, 'query_history': query_history, 'query_populate': query_populate})
 
-@login_required(login_url=login_user)
+@login_required(login_url='login_user')
 def delete_database(request, pk):
+    database = DatabaseUpload.objects.get(pk=pk)
     if request.method == 'POST':
-        database = DatabaseUpload.objects.get(pk=pk)
-        user = request.user
-        if database.user == user:
+        user_confirmation_password = request.POST.get('password')
+        if database.user != request.user:
+            messages.warning(request, f'{database.name}: You are not authorized to delete this database')
+            return redirect('management')
+        if authenticate(username=request.user.username, password=user_confirmation_password):
             try:
-                database.delete()
+                if request.user.username == 'TestUser':
+                  messages.error(request, f'This user does not have any permission to delete database please make sure to create your own account and unload your databases!!!!')
+                  return redirect('management')
+                # database.delete()
+
                 messages.success(request, f'{database.name}: Database deleted successfully')
                 return redirect('management')
-            except Database.DoesNotExist as e:
-                messages.warning(request, f'Error has occurred while deleting database {e}')
-        messages.warning(request, f'{database.name}: Your not authorized to delete database')
-    database = DatabaseUpload.objects.get(id=pk)
+            except Exception as e:
+                messages.warning(request, f'Error occurred while deleting database: {str(e)}')
+        else:
+            messages.warning(request, 'Invalid password')
     return render(request, 'confirmation_delete.html', {'db_info': database})
 
 
@@ -322,7 +342,7 @@ def chat_submit_view(request):
             return JsonResponse({'generated_code': '', 'messages': generated_code})
 
         # Log the API usage
-        APIUsage.objects.create(user=user, endpoint='submit_code')
+        APIUsage.objects.create(user=user, endpoint='submit_code', user_input_request_context=code_text, model_response=generated_code)
 
         return JsonResponse({'generated_code': generated_code, 'messages': ''})
 
@@ -361,6 +381,44 @@ def management(request):
     cur_db_type = [db.name for db in dbObj if db.name != 'SQLite']
     databases = DatabaseUpload.objects.filter(user=cur_user)
     return render(request, 'management.html', {'databases': databases, 'db_host': cur_db_type})
+
+
+
+# function to get the database schema dynamically based on the database type
+def database_schema(request, database_id):
+    try:
+        # Attempt to retrieve the database record
+        database = DatabaseUpload.objects.get(id=database_id)
+
+        # Check if the current user is the owner of the database
+        if database.user != request.user:
+            messages.error(request, "You're not authorized to access this database.")
+            # return render(request, 'database_schema.html', {'schema': None, 'dbObj': None})
+            return redirect(management)
+
+        # Determine the database type and path
+        db_type = database.type.name
+        if db_type == "SQLite":
+            database_path = database.file.path
+        else:
+            database_path = database
+
+        # Retrieve the database schema
+        schema = get_database_schema(db_type=db_type, database_path=database_path)
+
+        # Render the schema in the template
+        return render(request, 'database_schema.html', {'schema': schema, 'dbObj': database})
+
+    except DatabaseUpload.DoesNotExist:
+        # Handle the case where the database does not exist
+        messages.error(request, "The database does not exist.")
+        return render(request, 'database_schema.html', {'schema': None, 'dbObj': None})
+
+    except Exception as e:
+        # Handle other exceptions and display an error message
+        messages.error(request, f"An error occurred: {e}")
+        return render(request, 'database_schema.html', {'schema': None, 'dbObj': None})
+
 
 
 @login_required(login_url=login_user)
@@ -424,7 +482,6 @@ def execute_sqlite_query(db_path, query):
     return query_result_with_headers, column_names
 
 
-from dataclasses import dataclass
 
 @dataclass
 class QueryType:
@@ -432,10 +489,32 @@ class QueryType:
     val: str = None
 
 def execute_postgres_query(user, db_path, query):
+    query_type = query.strip().split()[0].upper()
+
+    try:
+        permissions = DatabasePermissions.objects.get(user=user)
+        # User is in the permissions table, so we need to check their permissions
+        allowed_commands = []
+        if permissions.can_select:
+            allowed_commands.append("SELECT")
+        if permissions.can_insert:
+            allowed_commands.append("INSERT")
+        if permissions.can_update:
+            allowed_commands.append("UPDATE")
+        if permissions.can_delete:
+            allowed_commands.append("DELETE")
+
+        if query_type not in allowed_commands:
+            return f"User does not have permission to execute {query_type} queries", None, None
+    except DatabasePermissions.DoesNotExist:
+        # User is not in the permissions table, so they can do whatever they need
+        pass
+
     # Find the database object
     db_conn = DatabaseUpload.objects.get(user=user, id=db_path.id)
     # Return a database configuration object based on the given database object
     db_conn = DatabaseConnection.objects.get(database=db_conn)
+
     # Connection to host database
     conn = psycopg2.connect(
         dbname=db_conn.dbname,
@@ -448,8 +527,6 @@ def execute_postgres_query(user, db_path, query):
     cursor = conn.cursor()
     cursor.execute(query)
 
-    # Determine the type of query and act accordingly
-    query_type = query.strip().split()[0].upper()
     query_result_with_headers = None
     column_names = None
 
@@ -466,7 +543,6 @@ def execute_postgres_query(user, db_path, query):
         conn.commit()
 
     conn.close()
-    # print(query_result_with_headers, column_names, query_type_obj)
     return query_result_with_headers, column_names, query_type_obj
 
 

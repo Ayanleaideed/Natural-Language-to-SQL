@@ -6,7 +6,7 @@ body {
 }
 .container-wraper {
   max-width: 650px;
-  margin: 50px auto;
+  margin: -10px auto;
   padding: 30px 50px;
   background-color: #ffffff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

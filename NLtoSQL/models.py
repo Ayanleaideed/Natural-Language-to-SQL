@@ -1,5 +1,4 @@
 import os
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
@@ -67,6 +66,8 @@ class DatabaseConnection(models.Model):
 class APIUsage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     endpoint = models.CharField(max_length=255)
+    user_input_request_context  = models.CharField(max_length=255, blank=True, null=True)
+    model_response  = models.CharField(max_length=255, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
@@ -103,5 +104,13 @@ class QueryHistory(models.Model):
     query_type = models.CharField(max_length=100)
     query_nl_text = models.CharField(max_length=255, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+class DatabasePermissions(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    can_select = models.BooleanField(default=False)
+    can_insert = models.BooleanField(default=False)
+    can_update = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
 
 
