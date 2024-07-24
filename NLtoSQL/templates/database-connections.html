@@ -4,7 +4,7 @@
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/database-connections.css' %}" />
 <div class="container-wraper">
-  <h2 class="form-title">PostgreSQL Connection Form</h2>
+  <h2 class="form-title">{{dbObject.type.name}} Connection Form</h2>
   <P style="text-align: center; align-items: center; font-size: large; color: hsla(0, 0%, 0%, 0.514);"> DB Name:&nbsp; {{previewConn.dbname}}</P>
 
 

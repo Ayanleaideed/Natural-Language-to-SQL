@@ -3,7 +3,7 @@
 {% block title %}Upload Database{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/management.css' %}">
+<link rel="stylesheet" href="{% static 'css/upload_database.css' %}">
 
 <div class="management-container">
   <h1>Upload Database</h1>
@@ -34,12 +34,23 @@
     </div>
 
 
-    <div class="dropdown-container">
+    <div class="form-group">
       <label for="database-file">Upload File:</label>
-      <input type="file" name="database_file" class="dropdown" id="database-file">
+      <div class="file-input-wrapper">
+        <input type="file" name="database_file" id="database-file" class="file-input">
+        <span class="file-input-text">Choose a file</span>
+        <span class="file-input-button">Browse</span>
+      </div>
+      <p class="help-text">
+        <i class="fas fa-info-circle"></i>
+        If not SQLite, create an object and configure it later based on the provided database type.
+        Leave blank for server databases Postgrass and others; create object/upload file for others.
+      </p>
     </div>
-    <button class="button upload-button" type="submit">Upload</button>
-    <a href="{% url 'management' %}" class="btn-back">Back</a>
+    <div class="button-group">
+      <button class="button upload-button" type="submit">Upload</button>
+      <a href="{% url 'management' %}" class="button back-button">Back</a>
+    </div>
   </form>
 </div>
 {% endblock %}

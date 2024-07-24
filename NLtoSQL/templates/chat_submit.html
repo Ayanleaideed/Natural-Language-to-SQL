@@ -11,11 +11,11 @@
         <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
         <button id="submit" type="submit" style="display: none;">Submit</button> <!-- Initially hidden -->
     </form>
-    <section class="wrapper" id="loading" class="loader" style="display: none;">
+    <section class="wrapper-loading" id="loading" class="loader" style="display: none;">
         <div class="loader">
             <div class="loading one"></div>
             <div class="loading two"></div>
-            <div  class="loading three"></div>
+            <div class="loading three"></div>
             <div class="loading four"></div>
         </div>
     </section>
@@ -24,8 +24,7 @@
         <button id="copy-button" onclick="copyToClipboard()">Copy</button>
     </div>
 </div>
-
-<div class="custom-alerts" id="message-container" style="display: none;">
+<div class="custom-alerts" id="message-container" style="display: none; margin-top: 10px;">
     <div class="custom-alert custom-alert-warning">
         <span id="messages"></span>
         <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
@@ -69,10 +68,9 @@ $(document).ready(function() {
             },
             success: function(response) {
                 $('#loading').hide();
-                $('#response-output').text(response.generated_code);
+                updateCodeSnippet(response.generated_code);
                 if (response.messages) {
                     $('#messages').text(response.messages);
-                    $('#response-output').text(response.messages)
                     $('#message-container').show();
                 } else {
                     $('#message-container').hide();
@@ -86,6 +84,20 @@ $(document).ready(function() {
         });
     });
 });
+
+function updateCodeSnippet(code) {
+    const codeSnippet = document.getElementById('response-output');
+    codeSnippet.innerHTML = `<pre><code>${escapeHtml(code)}</code></pre>`;
+}
+
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 function copyToClipboard() {
     const copyText = document.getElementById('response-output').innerText;

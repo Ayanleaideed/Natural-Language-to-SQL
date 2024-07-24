@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="{% static 'css/management.css' %}">
 
 <div class="management-container">
-  <h1>Database Management</h1>
+  <h1 id="management-page-h1">Database Management</h1>
   <div class="dropdown-upload-container">
     <div class="dropdown-container">
       <label for="database-dropdown">Your Current Databases:</label>
@@ -31,28 +31,27 @@
       <p>Type: <strong>{{ database.type.name }}</strong></p>
       <p>Uploaded at: <strong>{{ database.uploaded_at }}</strong></p>
       <p>Hosted at: <strong>{{ database.hostType }}</strong></p>
-      <p>Size: <strong>{{ database.size }} bytes</p></strong>
+      <p>Size: <strong>{{ database.size }} bytes</strong></p>
       <div class="database-buttons">
-
         <a href="{% url 'delete_database' database.id %}" class="button delete-button" style="text-decoration: none;">Delete Database</a>
         <a href="{% url 'upload_database' %}" class="button upload-button" style="text-decoration: none;">Upload Sample Database</a>
-        {% if database.type.name in db_host%}
-        <a href="{% url 'db_connection' database.id %}" class="button connecion-button" style="text-decoration: none;">Connection Configuration</a>
+        {% if database.type.name in db_host %}
+        <a href="{% url 'db_connection' database.id %}" class="button connection-button" style="text-decoration: none;">Connection Configuration</a>
         {% endif %}
+        <a href="{% url 'database_schema' database.id %}" class="button schema-button" style="text-decoration: none;">Schema</a>
       </div>
     </div>
     {% endfor %}
-  </div>
-  <div class="database-info">
-    <div class="database-card">
-      <h2>Database Name</h2>
-      <p>Upload sample to this database placeholder</p>
-      <div class="database-buttons">
-        <button class="button delete-button">Delete Database </button>
-        <button class="button upload-button">Upload Sample Database</button>
+    <div class="database-info">
+      <div class="database-card">
+        <h2>Database Name</h2>
+        <p>Upload sample to this database placeholder</p>
+        <div class="database-buttons">
+          <button class="button delete-button">Delete Database </button>
+          <button class="button upload-button">Upload Sample Database</button>
+        </div>
       </div>
     </div>
   </div>
-
 </div>
 {% endblock %}

@@ -82,6 +82,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#         'USER': 'postgres',
+#         'PASSWORD': 'root',
+#         'NAME': 'Nl_to_SQL'
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -107,13 +118,15 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Chicago"
 
 USE_I18N = True
 
 USE_TZ = True
 
+from django.utils import timezone
 
+current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
@@ -124,3 +137,7 @@ LOGIN_URL = '/login_user/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+SUPABASE_URL = "https://vkzhpwggfsbybgfxater.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZremhwd2dnZnNieWJnZnhhdGVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEwOTQ4NzAsImV4cCI6MjAzNjY3MDg3MH0.M6bJ61mRI2PHFyA2xEmIO-ECSa9Yy7L5jWSAJontjdY"

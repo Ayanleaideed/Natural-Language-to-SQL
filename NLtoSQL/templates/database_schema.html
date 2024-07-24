@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Database Schema: {{dbObj.name}}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/databaseSchema.css' %}">
+
+<div class="schema-container">
+  <div class="header">
+    <h1>Database Schema: {{dbObj.name}}</h1>
+  </div>
+  {% for table_name, table_info in schema.items %}
+ 
+    <div class="table-container">
+      <h2 class="table-title">{{ table_name }}</h2>
+      <table class="schema-table">
+        <thead>
+          <tr>
+            <th>Column Name</th>
+            <th>Data Type</th>
+            <th>Constraints</th>
+            <th>Foreign Keys</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for column in table_info.columns %}
+          <tr>
+            <td>{{ column.name }}</td>
+            <td>{{ column.type }}</td>
+            <td>{{ column.constraints|join:", " }}</td>
+            <td>
+              {% if table_info.foreign_keys %}
+                <ul class="foreign-keys">
+                  {% for fk in table_info.foreign_keys %}
+                    {% if fk.from == column.name %}
+                      <li>{{ fk.from }} -> {{ fk.to }}</li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
