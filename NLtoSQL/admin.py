@@ -36,7 +36,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('user__is_active', 'user__is_staff')
 
 class DatabaseUploadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'uploaded_at', 'hostType', 'size')
+    list_display = ('name', 'user', 'uploaded_at', 'type', 'file', 'supabase_path',  'hostType', 'size')
     search_fields = ('name', 'user__username')
     list_filter = ('uploaded_at',)
     readonly_fields = ('size',)
@@ -73,8 +73,8 @@ class DatabaseConnectionAdmin(admin.ModelAdmin):
 
 
 class DatabasePermissionsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'can_select', 'can_insert', 'can_update', 'can_delete')
-    list_filter = ('can_select', 'can_insert', 'can_update', 'can_delete')
+    list_display = ('user', 'can_select', 'can_insert', 'can_update', 'can_delete', 'can_drop')
+    list_filter = ('can_select', 'can_insert', 'can_update', 'can_delete', 'can_drop')
     search_fields = ('user__username',)
 
     def get_queryset(self, request):

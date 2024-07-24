@@ -7,98 +7,186 @@
 <link rel="stylesheet" href="{% static 'css/query.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
 
-<div class="main-container">
-  <div class="side-panel" id="left-panel">
-    <h2>Query History</h2>
-    <input type="text" placeholder="Search History..." id="search-history">
-    <div class="query-history">
-      {% for row in query_history %}
-      <p class="query-entry" data-databaseName="{{ row.database }}">{{ row.query }}</p>
-      {% endfor %}
-    </div>
-  </div>
+<div class="app-container">
+  <header class="app-header">
+      <h1>Advanced Query Interface</h1>
+      <nav class="main-nav">
+          <a href="/query" class="active">Query</a>
+          <a href="/management/">Dashboard</a>
+          <a href="#">Analytics</a>
+          <a href="#" onclick="functionToClick()">Settings</a>
 
-  <div class="center-panel">
-    <div class="tab-container">
-      <button class="tab-button active" onclick="openTab(event, 'sqlQuery')">SQL Query</button>
-      <button class="tab-button" onclick="openTab(event, 'nlQuery')">Natural Language Query</button>
-    </div>
+      </nav>
+  </header>
 
-    <div id="sqlQuery" class="tab-content">
-      <h1>Enter a SQL Query</h1>
-      <form method="POST">
-        {% csrf_token %}
-        <div class="dropdown-container">
-          <label for="selected_database_sql">Select Current Database:</label>
-          <select name="selected_database" id="selected_database_sql" class="dropdown" onchange="updateDatabaseInfo()">
-            <option value="">Select a database</option>
-            {% for db in databases %}
-            <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
-                  {% if not query_populate.db and forloop.first %}
-                      selected
-                  {% elif db.id == query_populate.db %}
-                      selected
-                  {% endif %}>
-              {{ db.name }}
-            </option>
+  <main class="main-content">
+      <aside class="side-panel history-panel">
+          <h2><i class="fas fa-history"></i> Query History</h2>
+          <div class="search-container">
+              <input type="text" id="search-history" placeholder="Search History...">
+              <i class="fas fa-search"></i>
+          </div>
+          <div class="query-history">
+              {% for row in query_history %}
+              <div class="query-entry" data-databaseName="{{ row.database }}">
+                  <p>{{ row.query }}</p>
+                  <div class="query-actions">
+                      <button class="action-btn" title="Copy"><i class="fas fa-copy"></i></button>
+                      <button class="action-btn" onclick="handleClick()" title="Run"><i class="fas fa-play"></i></button>
+                  </div>
+              </div>
+              {% endfor %}
+          </div>
+      </aside>
 
-            {% endfor %}
-          </select>
-        </div>
-        {% if query_populate.type == 'sql_query' %}
-        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{ query_populate.val }}</textarea>
-        <input type="submit" name="sql_query" value="Execute">
-        {% else %}
-        <textarea id="sql-input" required name="SQL_text" placeholder="Enter SQL Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-        <input type="submit" name="sql_query" value="Execute">
-        {% endif %}
-      </form>
-    </div>
+      <section class="center-panel">
+          <div class="tab-container">
+              <button class="tab-button active" data-tab="sqlQuery">
+                  <i class="fas fa-database"></i> SQL Query
+              </button>
+              <button class="tab-button" data-tab="nlQuery">
+                  <i class="fas fa-comments"></i> Natural Language Query
+              </button>
+          </div>
 
-    <div id="nlQuery" class="tab-content" style="display:none">
-      <h1>Enter a Natural Language Query</h1>
-      <form method="POST">
-        {% csrf_token %}
-        <div class="dropdown-container">
-          <label for="selected_database_nl">Select Current Database:</label>
-          <select name="selected_database" id="selected_database_nl" class="dropdown" onchange="updateDatabaseInfo()">
-            <option value="">Select a database</option>
-            {% for db in databases %}
-              <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
-                {% if not query_populate.db and forloop.first %}
-                        selected
-                    {% elif db.id == query_populate.db %}
-                        selected
-                    {% endif %}>
-                {{ db.name }}
-              </option>
+          <div id="sqlQuery" class="tab-content active">
+              <h2>SQL Query Editor</h2>
+              <form method="POST" class="query-form">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <label for="selected_database_sql">Select Database:</label>
+                      <div class="select-wrapper">
+                          <select name="selected_database" id="selected_database_sql" class="styled-select" onchange="updateDatabaseInfo()">
+                              <option value="">Select a database</option>
+                              {% for db in databases %}
+                              <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
+                                  {% if not query_populate.db and forloop.first %}selected{% elif db.id == query_populate.db %}selected{% endif %}>
+                                  {{ db.name }}
+                              </option>
+                              {% endfor %}
+                          </select>
+                          <i class="fas fa-chevron-down"></i>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="themes">
+                        <label for="sql-input">SQL Query:</label>
+                        <div class="theme-dots">
+                            <div class="theme-dot theme-dark active"  data-theme="dark" title="Dark theme"></div>
+                            <div class="theme-dot theme-light" data-theme="light" title="Light theme"></div>
+                            <div class="theme-dot theme-blue" data-theme="blue" title="Blue theme"></div>
+                            <div class="theme-dot theme-green" data-theme="green" title="Green theme"></div>
+                            <div class="theme-dot theme-purple" data-theme="purple" title="Purple theme"></div>
+                        </div>
+                    </div>
+                      <textarea id="sql-input" required name="SQL_text" placeholder="Enter your SQL query here..." autofocus autocomplete="off" oninput="adjustRows(this)">{% if query_populate.type == 'sql_query' %}{{ query_populate.val }}{% endif %}</textarea>
+                  </div>
+                  <button title="Submit sql_query " type="submit" name="sql_query" class="submit-btn">
+                      <i class="fas fa-play"></i> Execute Query
+                  </button>
+              </form>
+          </div>
 
-            {% endfor %}
-          </select>
-        </div>
-        {% if query_populate.type == 'nl_query' %}
-        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)">{{query_populate.val }}</textarea>
-        <input id="btn" type="submit" name="nl_query" value="Execute">
-        {% else %}
-        <textarea id="nl-input" required name="NL_text" placeholder="Enter Natural Language Query" autofocus autocomplete="off" oninput="adjustRows(this)"></textarea>
-        <input id="btn" type="submit" name="nl_query" value="Execute">
-        {% endif %}
-      </form>
-    </div>
-  </div>
+          <div id="nlQuery" class="tab-content">
+              <h2>Natural Language Query</h2>
+              <form method="POST" class="query-form">
+                  {% csrf_token %}
+                  <div class="form-group">
+                      <label for="selected_database_nl">Select Database:</label>
+                      <div class="select-wrapper">
+                          <select name="selected_database" id="selected_database_nl" class="styled-select" onchange="updateDatabaseInfo()">
+                              <option value="">Select a database</option>
+                              {% for db in databases %}
+                              <option value="{{ db.id }}" data-size="{{ db.size }}" data-user="{{ db.user }}" data-type="{{ db.type }}" data-host="{{ db.hostType }}" data-name="{{ db.name }}"
+                                  {% if not query_populate.db and forloop.first %}selected{% elif db.id == query_populate.db %}selected{% endif %}>
+                                  {{ db.name }}
+                              </option>
+                              {% endfor %}
+                          </select>
+                          <i class="fas fa-chevron-down"></i>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="themes">
+                        <label for="nl-input">Natural Language Query:</label>
+                        <div class="theme-dots">
+                            <div class="theme-dot theme-dark active"  data-theme="dark" title="Dark theme"></div>
+                            <div class="theme-dot theme-light" data-theme="light" title="Light theme"></div>
+                            <div class="theme-dot theme-blue" data-theme="blue" title="Blue theme"></div>
+                            <div class="theme-dot theme-green" data-theme="green" title="Green theme"></div>
+                            <div class="theme-dot theme-purple" data-theme="purple" title="Purple theme"></div>
+                        </div>
+                    </div>
+                     
+                      <textarea id="nl-input" required name="NL_text" placeholder="Describe your query in natural language..." autofocus autocomplete="off" oninput="adjustRows(this)">{% if query_populate.type == 'nl_query' %}{{ query_populate.val }}{% endif %}</textarea>
+                  </div>
+                  <button title="Submit nl_query " type="submit" name="nl_query" class="submit-btn">
+                      <i class="fas fa-play"></i> Execute Query
+                  </button>
+              </form>
+          </div>
+      </section>
 
-  <div class="side-panel" id="right-panel">
-    <h2>Database Information</h2>
-    <div class="db-info">
-      <h4>Database Size: <span id="db-size"></span></h4>
-      <h4>Database Name: <span id="db-name"></span></h4>
-      <h4>Database Type: <span id="db-type"></span></h4>
-      <h4>Database Host: <span id="db-host"></span></h4>
-      <h4>Uploaded by: <span id="db-user"></span></h4>
-    </div>
-  </div>
+      <aside class="side-panel info-panel">
+          <h2><i class="fas fa-info-circle"></i> Database Information</h2>
+          <div class="db-info">
+              <div class="info-item">
+                  <i class="fas fa-database"></i>
+                  <span>Name: <strong id="db-name"></strong></span>
+              </div>
+              <div class="info-item">
+                  <i class="fas fa-hdd"></i>
+                  <span>Size: <strong id="db-size"></strong></span>
+              </div>
+              <div class="info-item">
+                  <i class="fas fa-server"></i>
+                  <span>Type: <strong id="db-type"></strong></span>
+              </div>
+              <div class="info-item">
+                  <i class="fas fa-network-wired"></i>
+                  <span>Host: <strong id="db-host"></strong></span>
+              </div>
+              <div class="info-item">
+                  <i class="fas fa-user"></i>
+                  <span>Uploaded by: <strong id="db-user"></strong></span>
+              </div>
+          </div>
+      </aside>
+  </main>
 </div>
 
 <script src="{% static 'javaScript/query.js' %}"></script>
+<script>
+  function handleClick() {
+    // Get the active tab
+    const activeTab = document.querySelector('.tab-content.active');
+    
+    if (activeTab && activeTab.id === 'sqlQuery') {
+      // Click the SQL query button if the SQL tab is active
+      const submitSqlButton = document.querySelector('button[name="sql_query"]');
+      if (submitSqlButton) {
+        submitSqlButton.click();
+      }
+    } else if (activeTab && activeTab.id === 'nlQuery') {
+      // Click the NL query button if the NL tab is active
+      const submitNlButton = document.querySelector('button[name="nl_query"]');
+      if (submitNlButton) {
+        submitNlButton.click();
+      }
+    }
+  }
+    function functionToClick() {
+    // Toggle the visibility of the userProfile div
+    const userProfile = document.getElementById('userProfile');
+    if (userProfile.style.display === 'none' || userProfile.style.display === '') {
+        userProfile.style.display = 'block';
+    } else {
+        userProfile.style.display = 'none';
+    }
+}
+
+
+</script>
+</script>
 
 {% endblock %}

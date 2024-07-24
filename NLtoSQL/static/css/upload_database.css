@@ -180,9 +180,14 @@ label {
   color: #fff;
   background-color: #6c757d;
   border-color: #6c757d;
+  margin-left: 10px;
 }
 
-.upload-button:hover,
-.back-button:hover {
+.upload-button:hover {
   filter: brightness(90%);
+}
+
+
+.back-button:hover{
+  background-color: rgba(41, 41, 238, 0.958) ;
 }

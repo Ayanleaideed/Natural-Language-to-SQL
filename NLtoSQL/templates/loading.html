@@ -39,8 +39,11 @@
     <div class="coming-soon-section">
       <h2>Exciting Features Coming Soon</h2>
       <p>We are constantly working to bring you new and exciting features. Stay tuned for updates!</p>
-      <div class="coming-soon">Coming Soon</div>
-    </div>
+      {% for feature in upComingFeatures %}
+        <code class="features-code">{{ feature.name }}: {{ feature.description }}</code><br>
+      {% endfor %}
+    <div class="coming-soon">Coming Soon</div>
+    </div>    
   </div>
   <script src="{% static 'javaScript/loading.js' %}"></script>
 

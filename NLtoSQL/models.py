@@ -4,6 +4,9 @@ from django.db import models
 from django.utils import timezone
 
 
+from django.conf import settings
+from supabase import create_client, Client
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # profile_picture = models.ImageField(upload_to='profile_pics', null=True, blank=True)
@@ -29,26 +32,93 @@ HOST_CHOICES = [
     ('other_hosts', 'Other Hosts'),
     ('N/A', 'N/A')
 ]
+
+# class DatabaseUpload(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     name = models.CharField(max_length=255)
+#     uploaded_at = models.DateTimeField(auto_now_add=True)
+#     file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
+#     size = models.PositiveIntegerField(blank=True, null=True, editable=False)
+#     type = models.ForeignKey(DatabaseType, on_delete=models.CASCADE)
+#     hostType = models.CharField( max_length=255, blank=True, null=True, choices=HOST_CHOICES)
+
+#     # def save(self, *args, **kwargs):
+#     #     self.size = self.file.size
+#     #     super(DatabaseUpload, self).save(*args, **kwargs)
+
+#     def save(self, *args, **kwargs):
+#         if not self.file and self.name:
+#             self.file.name = f"{self.name}_placeholder.txt"
+#         super().save(*args, **kwargs)
+
+#     def __str__(self):
+#         return f'{self.name} uploaded by {self.user.username}'
+
+
+def get_supabase_client():
+    return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+
+# new DatabaseUpload.models for the supaBase Integration
 class DatabaseUpload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
+    # file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
     size = models.PositiveIntegerField(blank=True, null=True, editable=False)
     type = models.ForeignKey(DatabaseType, on_delete=models.CASCADE)
-    hostType = models.CharField( max_length=255, blank=True, null=True, choices=HOST_CHOICES)
-
-    # def save(self, *args, **kwargs):
-    #     self.size = self.file.size
-    #     super(DatabaseUpload, self).save(*args, **kwargs)
+    hostType = models.CharField(max_length=255, blank=True, null=True, choices=HOST_CHOICES)
+    supabase_path = models.CharField(max_length=255, default=None, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.file and self.name:
-            self.file.name = f"{self.name}_placeholder.txt"
+        if not self.supabase_path:
+            raise ValueError("supabase_path must be set")
         super().save(*args, **kwargs)
+
+    def delete_from_superbase(self, *args, **kwargs):
+        # Delete file from Supabase
+        try:
+            supabase = get_supabase_client()
+            result = supabase.storage.from_('nl_to_sql_bucket').remove(self.supabase_path)
+            if result.error:
+                raise Exception("Failed to delete file from Supabase")
+            super().delete(*args, **kwargs)
+        except Exception as e:
+            return e
 
     def __str__(self):
         return f'{self.name} uploaded by {self.user.username}'
+
+    @property
+    def file_path(self):
+        return self.supabase_path
+
+    @property
+    def file(self):
+        # This property mimics the FileField interface for compatibility
+        class SupabaseFile:
+            def __init__(self, upload):
+                self.upload = upload
+
+            @property
+            def path(self):
+                return self.upload.supabase_path
+
+            @property
+            def url(self):
+                supabase = get_supabase_client()
+                return supabase.storage.from_('nl_to_sql_bucket').get_public_url(self.upload.supabase_path)
+
+            def open(self, mode='rb'):
+                if mode != 'rb':
+                    raise ValueError("Only read mode is supported")
+                supabase = get_supabase_client()
+                response = supabase.storage.from_('nl_to_sql_bucket').download(self.upload.supabase_path)
+                return response
+
+        return SupabaseFile(self)
+
+
+
 
 class DatabaseConnection(models.Model):
     database = models.ForeignKey(DatabaseUpload, on_delete=models.CASCADE)
@@ -94,7 +164,6 @@ class is_allowed_SQL_beta(models.Model):
     Is_allowed = models.BooleanField(blank=False, null=False)
 
 
-from django.db import models
 
 
 class QueryHistory(models.Model):
@@ -105,12 +174,14 @@ class QueryHistory(models.Model):
     query_nl_text = models.CharField(max_length=255, blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
-
+# models to handle permission  
 class DatabasePermissions(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     can_select = models.BooleanField(default=False)
     can_insert = models.BooleanField(default=False)
+    can_create = models.BooleanField(default=False)
     can_update = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
+    can_drop = models.BooleanField(default=False)
 
 
