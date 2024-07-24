@@ -63,7 +63,9 @@ Desktop.ini
 *.swo
 
 # Ignore database files
-databases/*.sqlite3
+*.sqlite3
+.sqlite3
+db.sqlite3
 databases/*.db
 
 # Ignore pycache files
