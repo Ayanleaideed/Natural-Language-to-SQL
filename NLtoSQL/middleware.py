@@ -11,7 +11,8 @@ class LoginRequiredMiddleware:
         # List of URL patterns that don't require authentication
         auth_path = [
             reverse('login_user'),
-            reverse('register')
+            reverse('register'),
+            reverse('demoLogin')
         ]
 
         if not request.user.is_authenticated and request.path not in auth_path:

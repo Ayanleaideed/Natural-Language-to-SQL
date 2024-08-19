@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Submit Code{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev AI - CSS & HTML Code Generator</title>
+    <style>
+        /*
+        * Talman Color Palette
+        * https://www.schemecolor.com/talman-color-scheme.php
+        */
+        :root {
+            --talman-blue: #0057B7;
+            --talman-light-blue: #9DD1FF;
+            --talman-red: #D62828;
+            --talman-yellow: #F7B801;
+            --talman-off-white: #F4F1DE;
+        }
+
+        /* Base Styles */
+        body {
+            font-family: 'Google Coding Font', monospace;
+            background-color: var(--talman-off-white);
+            margin: 0;
+            padding: 20px;
+            color: var(--talman-blue);
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            max-width: 800px;
+            margin: 0 auto; /* Center content */
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--talman-blue);
+        }
+
+        /* Warp Class Styles */
+        .warp-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .warp-item {
+            width: 100%; /* Default to full width */
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: var(--talman-light-blue);
+            border-radius: 10px;
+            box-sizing: border-box; /* Include padding and border in element width */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Add smooth transitions */
+            overflow: hidden; /* Hide content that overflows */
+            position: relative; /* For positioning the "outbreak" element */
+        }
+
+        /* Media Query for Responsiveness (adjust breakpoint as needed) */
+        @media (min-width: 768px) {
+            .warp-item {
+                width: 48%; /* Two columns on larger screens */
+            }
+        }
+
+        .warp-item:hover {
+            transform: translateY(-5px); /* Move slightly up on hover */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Add a larger shadow on hover */
+        }
+
+        .warp-item h3 {
+            color: var(--talman-blue);
+            margin-bottom: 10px;
+        }
+
+        .warp-item p {
+            line-height: 1.6;
+        }
+
+        /* "Outbreak" Functionality */
+        .outbreak {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .warp-item:hover .outbreak {
+            opacity: 1;
+        }
+
+        /* Form Styles */
+        form {
+            margin-top: 2rem;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Button Styles */
+        button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            background-color: var(--talman-red);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--talman-yellow);
+        }
+
+        /* Answer Container Styles */
+        .answer {
+            margin-top: 2rem;
+            background-color: var(--talman-light-blue);
+            padding: 20px;
+            border-radius: 5px;
+            font-size: 1rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* Code Snippet Styles */
+        pre {
+            color: #333;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CSS & HTML Code Generator</h1>
+
+        <!-- Example of how to use the warp class -->
+        <div class="warp-container">
+            <div class="warp-item">
+                <h3>Item 1</h3>
+                <p>Some content goes here. This could be a product description, a blog post excerpt, or anything you like.</p>
+                <div class="outbreak">
+                    <p>More details here!</p>
+                </div>
+            </div>
+            <div class="warp-item">
+                <h3>Item 2</h3>
+                <p>More content for the second item. The "outbreak" effect adds an interesting visual element on hover.</p>
+                <div class="outbreak">
+                    <p>Even more details!</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="question" placeholder="Enter your question here" required autocomplete="off">
+            <button type="submit">Generate Code</button>
+        </form>
+
+        {% if answer %}
+            <div class="answer">
+                <h2>Generated Code:</h2>
+                <pre>{{ answer }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock %}

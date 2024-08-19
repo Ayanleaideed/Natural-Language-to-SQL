@@ -6,13 +6,14 @@ import psycopg2
 from dotenv import load_dotenv
 from mysql.connector import Error
 from .models import DatabaseConnection
-from supabase import create_client
 from django.conf import settings
 import requests
 import io
 import tempfile
 from datetime import datetime, timedelta
 import google.generativeai as genai
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,7 +37,9 @@ def generate_sql_query(dbType, natural_language_query, databases_context):
 
     try:
         # Initialize the Generative AI model
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        # model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        model = genai.GenerativeModel('gemini-1.5-flash')
+
 
         # Generate the SQL query from the natural language query
         response = model.generate_content(prompt)
@@ -51,17 +54,15 @@ def generate_sql_query(dbType, natural_language_query, databases_context):
         return  Exception('Error has occurred while generating: %s' % e)
 
     
-    
-
-# Function to get database schema based on database type
+    # Function to get the database schema based on the database type
 def get_database_schema(db_type, database_path):
     schema = {}
     try:
         if db_type == "SQLite":
-            # Connect to SQLite database
+            # print(f"Debug: Connecting to SQLite database at path: {database_path}")
             conn = sqlite3.connect(database_path)
             cursor = conn.cursor()
-
+            
             # Get tables and their columns
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = cursor.fetchall()
@@ -69,17 +70,14 @@ def get_database_schema(db_type, database_path):
                 table_name = table[0]
                 cursor.execute(f"PRAGMA table_info({table_name});")
                 columns = cursor.fetchall()
-
                 # Get foreign key information
                 cursor.execute(f"PRAGMA foreign_key_list({table_name});")
                 foreign_keys = cursor.fetchall()
-
                 # Build schema for each table
                 schema[table_name] = {
                     "columns": [],
                     "foreign_keys": []
                 }
-
                 for column in columns:
                     col_info = {
                         "name": column[1],
@@ -91,13 +89,11 @@ def get_database_schema(db_type, database_path):
                     if column[5]:  # PRIMARY KEY
                         col_info["constraints"].append("PRIMARY KEY")
                     schema[table_name]["columns"].append(col_info)
-
                 for fk in foreign_keys:
                     schema[table_name]["foreign_keys"].append({
                         "from": fk[3],
                         "to": f"{fk[2]}.{fk[4]}"
                     })
-
             conn.close()
 
         elif db_type == "PostgreSQL":
@@ -282,13 +278,21 @@ def get_mysql_connection(db_name):
     except Error as e:
         return f"Error connecting to database '{db_name}': {e}"
 
+
+
 # Function to generate SQL query from natural language question
 def get_sql_question_answer(question):
-    prompt_sql_generator =  os.getenv("PROMPT_SQL_GENERATOR")
+    prompt_sql_generator = os.getenv("PROMPT_SQL_GENERATOR")
+    if prompt_sql_generator is None:
+        return ValueError("PROMPT_SQL_GENERATOR environment variable is not set.")
+    
     prompt_sql_generator = prompt_sql_generator.format(question=question)
+    
     try:
         # Initialize the Generative AI model
-        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        # model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        model = genai.GenerativeModel('gemini-1.5-flash')
+
 
         # Generate the SQL query from the natural language question
         response = model.generate_content(prompt_sql_generator)
@@ -301,8 +305,8 @@ def get_sql_question_answer(question):
         return sql_query
 
     except Exception as e:
-        # return e
-        return  Exception('Error has occurred while generating: %s' % e)
+        return f'Error has occurred while generating: {e}'
+
 
 # Function to get the next SQL question based on user's performance
 def get_next_sql_question(previous_question, user_answer, user_performance, username=None):
@@ -358,59 +362,10 @@ def Alpha_and_beta_test():
         return None
 
 
-# Function to fetch public URL from Supabase bucket
-def get_bucket(name):
-    url = settings.SUPABASE_URL
-    key = settings.SUPABASE_KEY
-    supabase = create_client(url, key)
-
-    # Access the storage client
-    storage_client = supabase.storage
-
-    # Get the bucket
-    bucket = storage_client.from_("nl_to_sql_bucket")
-
-    # Get the public URL of the file
-    public_url = bucket.get_public_url(name)
-    return public_url
-
-# Function to download file from URL
-def download_file(url):
-    response = requests.get(url)
-
-    # Check if download was successful
-    if response.status_code != 200:
-        raise Exception(f"Failed to download the file. Status code: {response.status_code}")
-
-    # Create a temporary file to store downloaded content
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-    try:
-        temp_file.write(response.content)
-        temp_file.close()
-        
-        return temp_file.name
-
-    except Exception as e:
-        # Clean up if there's an exception
-        if temp_file:
-            temp_file.close()
-            os.unlink(temp_file.name)
-        raise e
-    
-def delete_temp_file(file_path, isLocal=True):
-    """Delete the specified temporary file."""
-    # Only delete if the file is not local
-    if not isLocal:
-        if os.path.exists(file_path):
-            os.unlink(file_path)
-            return True
-        else:
-            return False
-    return False
-
 
 # Function to transform query result into a structured format
 def transform_query_result(query_result, column_names):
+    # print('Transforming query result', query_result, 'column names', column_names)
     transformed_result = []
     for row in query_result:
         transformed_row = {column_name: row.get(column_name, None) for column_name in column_names}
@@ -424,3 +379,36 @@ def get_time(seconds):
     adjusted_time = current_time + wait_time
     formatted_adjusted_time = adjusted_time.strftime("%I:%M %p")
     return formatted_adjusted_time
+
+import google.generativeai as genai
+
+def code_generator(question):
+    try:
+        # Automatically create a prompt for a world-class CSS and HTML agent
+        prompt = f"""
+            You are a world-class CSS and HTML expert. Your goal is to provide the most visually appealing and technically sound code possible, based on the user's input.
+
+            User Input: {question}
+
+            Requirements:
+            - Visually Exceptional: Strive for a layout that is both beautiful and highly effective in conveying the information.
+            - Technical Excellence: Follow best practices for clean, maintainable code.
+            - Talman CSS Color Palette: Incorporate this palette for a cohesive and aesthetically pleasing color scheme.
+            - Adaptability: Your code should be flexible enough to handle different content lengths and user preferences.
+
+            Output:
+            Provide the complete HTML and CSS code, clearly formatted and well-commented.
+
+            Example:
+            If the user input is "Create a webpage showcasing a company's product, including images and a product description," your code should generate a beautiful, responsive webpage incorporating the Talman CSS Color Palette and adhering to all other requirements.
+        """
+
+        # Use Google Gemini's newest API or model to generate the code
+        model = genai.GenerativeModel('gemini-1.5-pro')
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Code generation failed. Please try again. Error: {str(e)}"
+
+    
+    

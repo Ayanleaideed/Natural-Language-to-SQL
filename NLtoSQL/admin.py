@@ -36,7 +36,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('user__is_active', 'user__is_staff')
 
 class DatabaseUploadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'uploaded_at', 'type', 'file', 'supabase_path',  'hostType', 'size')
+    list_display = ('name', 'user', 'uploaded_at', 'type', 'file', 'b2_file_key',  'hostType', 'size')
     search_fields = ('name', 'user__username')
     list_filter = ('uploaded_at',)
     readonly_fields = ('size',)

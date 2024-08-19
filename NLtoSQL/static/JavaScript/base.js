@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Loading functions
+// Loading functions
 function startLoading() {
   document.getElementById('mainContent').classList.add('loading');
 }
@@ -36,3 +37,45 @@ function startLoading() {
 function stopLoading() {
   document.getElementById('mainContent').classList.remove('loading');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const loaderContainer = document.querySelector('.loader-container');
+  const blurOverlay = document.querySelector('.blur-overlay');
+  const mainContent = document.querySelector('main');
+
+  function showLoader() {
+    loaderContainer.style.display = 'flex'; // Show loader
+    blurOverlay.classList.add('active');
+    mainContent.classList.add('blur');
+  }
+
+  function hideLoader() {
+    loaderContainer.style.display = 'none'; // Hide loader
+    blurOverlay.classList.remove('active');
+    mainContent.classList.remove('blur');
+  }
+
+  // Handle internal link clicks
+  document.querySelectorAll('a[href^="/"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLoader();
+      setTimeout(() => {
+        window.location.href = link.href;
+      }, 100); 
+    });
+  });
+
+  // Show loader immediately when the script runs
+  showLoader();
+
+  // Set a timeout to hide the loader after 15 seconds
+  setTimeout(hideLoader, 15000);
+
+  // Still listen for the load event to potentially hide the loader earlier
+  window.addEventListener('load', () => {
+    if (performance.now() < 15000) {
+      hideLoader();
+    }
+  });
+});
