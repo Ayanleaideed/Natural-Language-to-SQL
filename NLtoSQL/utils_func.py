@@ -355,7 +355,8 @@ def get_next_sql_question(previous_question, user_answer, user_performance, user
 
 # test feature access for testing users
 def Alpha_and_beta_test():
-    secret_code = os.getenv('SECRET_CODE')
+    # secret_code = os.getenv('SECRET_CODE')
+    secret_code = settings.SECRET_CODE
     if secret_code:
         return secret_code
     else:
