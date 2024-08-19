@@ -1,0 +1,112 @@
+/* Global Styles */
+body {
+  background-color: #f2f2f2;
+
+   /* background: linear-gradient(to bottom, #000428, #004e92); */
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Coming Soon Container */
+.coming-soon-container {
+  width: 80%;
+  max-width: 800px;
+  margin: 4rem auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.391);
+  text-align: center;
+}
+
+.coming-soon-container h1 {
+  font-size: 2rem;
+  color: #005bb5;
+  margin-bottom: 1rem;
+}
+
+.coming-soon-container p {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.coming-soon {
+  font-size: 1.5rem;
+  color: #ff6600;
+  font-weight: bold;
+}
+
+
+.video-container {
+  width: 40%;
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.391);
+  text-align: center;
+}
+
+.input-container {
+  margin-top: 2em;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.email-input {
+  min-height: 50px;
+  max-width: 250px;
+  padding: 0 1rem;
+  color: hsla(0, 0%, 0%, 0.8);
+  font-size: 15px;
+  font-family: 'Courier New', Courier, monospace;
+  border: 1px solid #5e4dcd;
+  border-radius: 6px 0 0 6px;
+  background-color: transparent;
+}
+
+.notify-button {
+  min-height: 50px;
+  padding: .5em 1em;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  background-color: #5e4dcd;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color .3s ease-in-out;
+}
+.notify-button:hover{
+  background-color: #5f5dcdd7;
+}
+
+.email-input:focus, .notify-button:focus-visible {
+  border-color: #3898EC;
+  outline: none;
+}
+
+.secret-code {
+  margin-top: 1em;
+  font-size: 0.9em;
+  color: #000762;
+}
+
+.secret-code a {
+  color: #27007c;
+  text-decoration: none;
+  font-weight: bolder;
+  font-size: larger;
+}
+
+.span-wrapper {
+  content: "\2190";
+  margin:  0 20px;
+  font-size: xx-large;
+  font-weight: bolder;
+}
