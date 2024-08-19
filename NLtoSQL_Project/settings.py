@@ -1,28 +1,20 @@
-from pathlib import Path
 import os
-import environ
+from pathlib import Path
 from dotenv import load_dotenv
-
-
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Initialize django-environ
+# Load environment variables
 load_dotenv()
-env = environ.Env()
-environ.Env.read_env()
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-h4()6*kzem6&!i!_rtd1g0%h-l4bz4hj=-aw6nll@d==dj!exx")
+SECRET_KEY = os.environ.get('SECRET_KEY', 'your-default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.vercel.app', 'localhost', '127.0.0.1'])
+ALLOWED_HOSTS = ['vercel.app', '.vercel.app', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,8 +60,16 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
 # Database
 DATABASES = {
-    'default': env.db('DATABASE_URL', {}),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+# Use PostgreSQL or MySQL if DATABASE_URL is set
+if 'DATABASE_URL' in os.environ:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -78,8 +78,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
-
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
@@ -103,4 +101,9 @@ B2_BUCKET_NAME = os.environ.get('B2_BUCKET_NAME', "")
 B2_APPLICATION_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', '')
 B2_APPLICATION_KEY = os.environ.get('B2_APPLICATION_KEY', "")
 B2_REGION = os.environ.get('B2_REGION', "")
+
+# Google API Configuration
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
+
+# Secret Code (if needed)
 SECRET_CODE = os.environ.get('SECRET_CODE', "")
