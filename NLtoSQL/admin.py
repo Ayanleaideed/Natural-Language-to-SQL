@@ -36,7 +36,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ('user__is_active', 'user__is_staff')
 
 class DatabaseUploadAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'uploaded_at', 'hostType', 'size')
+    list_display = ('name', 'user', 'uploaded_at', 'type', 'file', 'b2_file_key',  'hostType', 'size')
     search_fields = ('name', 'user__username')
     list_filter = ('uploaded_at',)
     readonly_fields = ('size',)
@@ -44,7 +44,7 @@ class DatabaseUploadAdmin(admin.ModelAdmin):
 
 class APIUsageTable(admin.ModelAdmin):
     actions = ['delete_selected']
-    list_display = ('user', 'endpoint', 'timestamp')
+    list_display = ('user', 'endpoint', 'timestamp', 'user_input_request_context', 'model_response')
     search_fields = ('user__username',)
     list_filter = ('user',)
     readonly_fields = ('timestamp',)
@@ -72,6 +72,29 @@ class DatabaseConnectionAdmin(admin.ModelAdmin):
     database_name.short_description = 'Database Name'
 
 
+class DatabasePermissionsAdmin(admin.ModelAdmin):
+    list_display = ('user', 'can_select', 'can_insert', 'can_update', 'can_delete', 'can_drop')
+    list_filter = ('can_select', 'can_insert', 'can_update', 'can_delete', 'can_drop')
+    search_fields = ('user__username',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and obj.user != request.user and not request.user.is_superuser:
+            return False
+        return super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and obj.user != request.user and not request.user.is_superuser:
+            return False
+        return super().has_delete_permission(request, obj)
+
+
+
 
 
 admin.site.register(UserProfile, UserProfileAdmin)
@@ -81,3 +104,4 @@ admin.site.register(APIUsage, APIUsageTable)
 admin.site.register(is_allowed_SQL_beta, is_allowed_table)
 admin.site.register(QueryHistory, QueryHistoryAdmin)
 admin.site.register(DatabaseConnection, DatabaseConnectionAdmin)
+admin.site.register(DatabasePermissions, DatabasePermissionsAdmin)

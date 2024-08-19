@@ -4,98 +4,96 @@
 {% block content %}
 
 <link rel="stylesheet" href="{% static 'css/chat_submit_code.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code&display=swap" rel="stylesheet">
+    
 
-<div class="submission-container">
-    <h1>SQL & Coding Questions</h1>
-    <form id="codeForm">
-        <textarea id="code-input" name="code_text" placeholder="Type your code here..." required></textarea>
-        <button id="submit" type="submit" style="display: none;">Submit</button> <!-- Initially hidden -->
-    </form>
-    <section class="wrapper" id="loading" class="loader" style="display: none;">
-        <div class="loader">
-            <div class="loading one"></div>
-            <div class="loading two"></div>
-            <div  class="loading three"></div>
-            <div class="loading four"></div>
+<main class="main-container">
+    <div class="container">
+        <h1>SQL & Coding Questions</h1>
+        <form id="codeForm" method="post">
+            <div class="form-group">
+                <textarea id="code-input" name="code_text" placeholder="Type your code or question here..." required></textarea>
+            </div>
+            <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
         </div>
-    </section>
-    <div id="response-container" class="response-container" style="display: none;">
-        <pre name="response_output" id="response-output"></pre>
-        <button id="copy-button" onclick="copyToClipboard()">Copy</button>
-    </div>
-</div>
 
-<div class="custom-alerts" id="message-container" style="display: none;">
-    <div class="custom-alert custom-alert-warning">
-        <span id="messages"></span>
-        <button type="button" class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        <div id="response-container" class="response-container" style="display: none;">
+            <pre id="response-output"></pre>
+            <button id="copy-button" class="copy-btn" onclick="copyToClipboard()">Copy</button>
+        </div>
+
+        <div id="message-container" style="display: none;">
+            <div id="message" class="message">
+                <span id="message-text"></span>
+                <button type="button" class="close-btn" onclick="closeMessage()">&times;</button>
+            </div>
+        </div>
     </div>
-</div>
+</main>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'javaScript/chat_submit_code.js' %}"></script>
 <script>
-let lastSubmittedCode = $('#code-input').val(); // Initialize with current value
+    let lastSubmittedCode = $('#code-input').val(); // Initialize with current value
 
-$(document).ready(function() {
-    $('#code-input').on('input', function() {
-        let currentText = $(this).val();
-        if (currentText !== lastSubmittedCode) {
-            $('#submit').show(); // Show submit button when there are changes
-        } else {
-            $('#submit').hide(); // Hide again if text matches the last submitted code
-        }
-    });
-
-    $('#codeForm').submit(function(event) {
-        event.preventDefault();
-        const codeText = $('#code-input').val();
-
-        if (codeText === lastSubmittedCode) {
-            alert('Please make changes to your code before resubmitting.');
-            return; // Prevent form submission if code hasn't changed
-        }
-
-        lastSubmittedCode = codeText; // Update last submitted code
-        $('#submit').hide(); // Optionally hide the button again after submit
-        $('#loading').show();
-
-        $.ajax({
-            type: 'POST',
-            url: '{% url "submit_code" %}',
-            data: {
-                'code_text': codeText,
-                'context_data': $('#response-output').text(),
-                'csrfmiddlewaretoken': '{{ csrf_token }}'
-            },
-            success: function(response) {
-                $('#loading').hide();
-                $('#response-output').text(response.generated_code);
-                if (response.messages) {
-                    $('#messages').text(response.messages);
-                    $('#response-output').text(response.messages)
-                    $('#message-container').show();
-                } else {
-                    $('#message-container').hide();
-                }
-                $('#response-container').show();
-            },
-            error: function(error) {
-                $('#loading').hide();
-                console.error('Error:', error);
+    $(document).ready(function() {
+        $('#code-input').on('input', function() {
+            let currentText = $(this).val();
+            if (currentText !== lastSubmittedCode) {
+                $('#submit').show(); // Show submit button when there are changes
+            } else {
+                $('#submit').hide(); // Hide again if text matches the last submitted code
             }
         });
-    });
-});
 
-function copyToClipboard() {
-    const copyText = document.getElementById('response-output').innerText;
-    const textArea = document.createElement('textarea');
-    textArea.value = copyText;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-}
+        $('#codeForm').submit(function(event) {
+            event.preventDefault();
+            const codeText = $('#code-input').val();
+
+            if (codeText === lastSubmittedCode) {
+                alert('Please make changes to your code before resubmitting.');
+                return; // Prevent form submission if code hasn't changed
+            }
+
+            lastSubmittedCode = codeText; // Update last submitted code
+            $('#submit').hide(); // Optionally hide the button again after submit
+            $('#loading').show();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "chat_submit_view" %}',
+                data: {
+                    'code_text': codeText,
+                    'context_data': $('#response-output').text(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                $('#loading').hide();
+                if (response.messages) {
+                    $('#message-text').text(response.messages);
+                    $('#message-container').show();
+                    $('#response-container').hide(); 
+                } else {
+                    updateCodeSnippet(response.generated_code); 
+                    $('#message-container').hide();
+                    $('#response-container').show(); 
+                }
+            },
+                error: function(error) {
+                    $('#loading').hide();
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+
 </script>
+
 
 {% endblock %}

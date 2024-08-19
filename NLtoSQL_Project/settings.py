@@ -1,5 +1,6 @@
 
 
+
 from pathlib import Path
 import os
 import environ
@@ -80,6 +81,13 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 #     }
 # }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
     'default': env.db('DATABASE_URL'),
 }
@@ -111,13 +119,16 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "America/Chicago"
+TIME_ZONE = "America/Chicago"
 
 USE_I18N = True
 
 USE_TZ = True
 
 from django.utils import timezone
+from django.utils import timezone
 
+current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
 current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/

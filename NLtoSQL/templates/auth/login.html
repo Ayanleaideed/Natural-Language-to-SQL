@@ -5,6 +5,7 @@
 
 <link rel="stylesheet" href="{% static 'css/auth/login.css' %}">
 
+<div style="display: flex; justify-content: center; align-items: center; margin-bottom: 10px;"> <a id="login-button-demo" href="{% url 'demoLogin' %}">Live demo</a></div>
 <div class="log-container" >
 <form method="post" class="login_form_main">
   {% csrf_token %}
@@ -27,7 +28,8 @@
   <div class="login_signupContainer">
     <p>Don't have any account?</p>
   
-    <a href="{% url 'register' %}">Sign up</a>
+    <a href="{% url 'register' %}">Sign up</a> 
+
   </div>
 </form>
 </div>
