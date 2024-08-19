@@ -154,5 +154,5 @@ B2_BUCKET_NAME = os.environ.get('B2_BUCKET_NAME')
 B2_APPLICATION_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
 B2_APPLICATION_KEY = os.environ.get('B2_APPLICATION_KEY')
 B2_REGION = os.environ.get('B2_REGION')
-
+SECRET_CODE = os.environ.get('SECRET_CODE')
 
