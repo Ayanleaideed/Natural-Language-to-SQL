@@ -1,11 +1,15 @@
 from pathlib import Path
 import os
 import environ
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Initialize environ
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# Initialize django-environ
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -15,7 +19,7 @@ SECRET_KEY = env('SECRET_KEY', default="django-insecure-h4()6*kzem6&!i!_rtd1g0%h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.vercel.app', 'localhost', '127.0.0.1'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,7 +65,7 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
 # Database
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='sqlite:////' + os.path.join(BASE_DIR, 'db.sqlite3'))
+    'default': env.db('DATABASE_URL', {})
 }
 
 # Password validation
@@ -71,6 +75,8 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
