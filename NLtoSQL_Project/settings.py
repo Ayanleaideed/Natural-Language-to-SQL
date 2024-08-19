@@ -21,7 +21,7 @@ environ.Env.read_env()
 SECRET_KEY = "django-insecure-h4()6*kzem6&!i!_rtd1g0%h-l4bz4hj=-aw6nll@d==dj!exx"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
 ALLOWED_HOSTS = ['.vercel.app']
@@ -74,12 +74,6 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 # DATABASES = {
 #     "default": {
@@ -89,7 +83,7 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 # }
 
 DATABASES = {
-    'default': env.db('DATABASE_URL'),
+    'default': env.db('DATABASE_URL', {}),
 }
 
 
