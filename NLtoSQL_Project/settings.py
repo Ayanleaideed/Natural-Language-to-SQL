@@ -3,21 +3,24 @@ import os
 import environ
 from dotenv import load_dotenv
 
+
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables from .env file
-load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Initialize django-environ
+load_dotenv()
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env()
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', default="django-insecure-h4()6*kzem6&!i!_rtd1g0%h-l4bz4hj=-aw6nll@d==dj!exx")
+SECRET_KEY = os.environ.get('SECRET_KEY', "django-insecure-h4()6*kzem6&!i!_rtd1g0%h-l4bz4hj=-aw6nll@d==dj!exx")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = False
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.vercel.app', 'localhost', '127.0.0.1'])
 
@@ -65,7 +68,7 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
 # Database
 DATABASES = {
-    'default': env.db('DATABASE_URL', {})
+    'default': env.db('DATABASE_URL', {}),
 }
 
 # Password validation
@@ -96,8 +99,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = '/login_user/'
 
 # B2 Configuration
-B2_BUCKET_NAME = env('B2_BUCKET_NAME', default='')
-B2_APPLICATION_KEY_ID = env('B2_APPLICATION_KEY_ID', default='')
-B2_APPLICATION_KEY = env('B2_APPLICATION_KEY', default='')
-B2_REGION = env('B2_REGION', default='')
-SECRET_CODE = env('SECRET_CODE', default='')
+B2_BUCKET_NAME = os.environ.get.('B2_BUCKET_NAME', "")
+B2_APPLICATION_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', '')
+B2_APPLICATION_KEY = os.environ.get('B2_APPLICATION_KEY', "")
+B2_REGION = os.environ.get('B2_REGION', "")
+SECRET_CODE = os.environ.get('SECRET_CODE', "")
