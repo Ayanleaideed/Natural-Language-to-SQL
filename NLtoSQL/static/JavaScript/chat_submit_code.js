@@ -1,35 +1,28 @@
-$(document).ready(function() {
-  $('#codeForm').submit(function(event) {
-    event.preventDefault();
-
-    const codeText = $('#code-input').val();
-    const context_data = $('#response-output').text();
-
-    $.ajax({
-      type: 'POST',
-      url: '{% url "submit_code" %}', 
-      data: {
-        'code_text': codeText,
-        'current_data': context_data,
-        'csrfmiddlewaretoken': '{{ csrf_token }}'
-      },
-      success: function(response) {
-        $('#response-output').text(response.generated_code); 
-        $('#response-container').show();
-      },
-      error: function(error) {
-        console.error('Error:', error);
-      }
-    });
-  });
-});
+function updateCodeSnippet(code) {
+  const codeSnippet = document.getElementById('response-output');
+  codeSnippet.textContent = code;
+}
 
 function copyToClipboard() {
-  const copyText = document.getElementById('response-output').innerText;
-  const textArea = document.createElement('textarea');
-  textArea.value = copyText;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textArea);
+  const copyText = document.getElementById('response-output').textContent;
+  navigator.clipboard.writeText(copyText).then(() => {
+      showMessage('Copied to clipboard!', 'success');
+  }).catch(err => {
+      showMessage('Failed to copy. Please try again.', 'error');
+      console.error('Failed to copy: ', err);
+  });
+}
+
+function showMessage(text, type) {
+  const messageContainer = document.getElementById('message-container');
+  const message = document.getElementById('message');
+  const messageText = document.getElementById('message-text');
+
+  messageText.textContent = text;
+  message.className = `message message-${type}`;
+  messageContainer.style.display = 'block';
+}
+
+function closeMessage() {
+  document.getElementById('message-container').style.display = 'none';
 }

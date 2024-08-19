@@ -7,8 +7,18 @@
 
 <div class="management-container">
   <h1>Upload Database</h1>
+  
+  <!-- Loading spinner element -->
+  <div id="loading-spinner" class="loader">
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__bar"></div>
+    <div class="loader__ball"></div>
+  </div>
 
-  <form method="post" enctype="multipart/form-data">
+  <form id="upload-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="dropdown-container">
       <label for="database-name">Database Name:</label>
@@ -33,24 +43,53 @@
       </select>
     </div>
 
-
     <div class="form-group">
       <label for="database-file">Upload File:</label>
       <div class="file-input-wrapper">
-        <input type="file" name="database_file" id="database-file" class="file-input">
-        <span class="file-input-text">Choose a file</span>
-        <span class="file-input-button">Browse</span>
+          <input type="file" name="database_file" id="database-file" class="file-input">
+          <span class="file-input-text">Choose a file</span>
+          <span class="file-input-button">Browse</span>
       </div>
       <p class="help-text">
-        <i class="fas fa-info-circle"></i>
-        If not SQLite, create an object and configure it later based on the provided database type.
-        Leave blank for server databases Postgrass and others; create object/upload file for others.
+          <i class="fas fa-info-circle"></i>
+          If not SQLite, create an object and configure it later based on the provided database type.
+          Leave blank for server databases Postgrass and others; create object/upload file for others.
       </p>
     </div>
+    
     <div class="button-group">
       <button class="button upload-button" type="submit">Upload</button>
       <a href="{% url 'management' %}" class="button back-button">Back</a>
     </div>
   </form>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.querySelector('.file-input');
+    const container = document.querySelector('.file-input-wrapper');
+    const form = document.querySelector('form');
+    const spinner = document.querySelector('#loading-spinner');
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            container.classList.add('uploaded');
+            container.querySelector('.file-input-text').textContent = fileInput.files[0].name;
+        }
+    });
+
+    form.addEventListener('submit', function () {
+        spinner.style.display = 'flex';
+    });
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('upload-form');
+    const spinner = document.getElementById('loading-spinner');
+
+    form.addEventListener('submit', function () {
+        form.style.display = 'none'; // Hide the form
+        spinner.style.display = 'flex'; // Show the spinner
+    });
+  });
+</script>
 {% endblock %}

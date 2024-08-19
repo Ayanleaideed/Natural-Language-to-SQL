@@ -3,9 +3,15 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 
-
+import tempfile
+import requests
+import io
+import boto3
+from botocore.exceptions import ClientError
 from django.conf import settings
-from supabase import create_client, Client
+
+
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -33,89 +39,82 @@ HOST_CHOICES = [
     ('N/A', 'N/A')
 ]
 
-# class DatabaseUpload(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=255)
-#     uploaded_at = models.DateTimeField(auto_now_add=True)
-#     file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
-#     size = models.PositiveIntegerField(blank=True, null=True, editable=False)
-#     type = models.ForeignKey(DatabaseType, on_delete=models.CASCADE)
-#     hostType = models.CharField( max_length=255, blank=True, null=True, choices=HOST_CHOICES)
-
-#     # def save(self, *args, **kwargs):
-#     #     self.size = self.file.size
-#     #     super(DatabaseUpload, self).save(*args, **kwargs)
-
-#     def save(self, *args, **kwargs):
-#         if not self.file and self.name:
-#             self.file.name = f"{self.name}_placeholder.txt"
-#         super().save(*args, **kwargs)
-
-#     def __str__(self):
-#         return f'{self.name} uploaded by {self.user.username}'
 
 
-def get_supabase_client():
-    return create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
-
-# new DatabaseUpload.models for the supaBase Integration
+def get_b2_client():
+    return boto3.client(
+        's3',
+        endpoint_url=f'https://s3.{settings.B2_REGION}.backblazeb2.com',
+        aws_access_key_id=settings.B2_APPLICATION_KEY_ID,
+        aws_secret_access_key=settings.B2_APPLICATION_KEY
+    )
 class DatabaseUpload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    # file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
     size = models.PositiveIntegerField(blank=True, null=True, editable=False)
     type = models.ForeignKey(DatabaseType, on_delete=models.CASCADE)
     hostType = models.CharField(max_length=255, blank=True, null=True, choices=HOST_CHOICES)
-    supabase_path = models.CharField(max_length=255, default=None, null=True)
+    b2_file_key = models.CharField(max_length=255, default=None, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.supabase_path:
-            raise ValueError("supabase_path must be set")
+        if not self.b2_file_key:
+            raise ValueError("b2_file_key must be set")
         super().save(*args, **kwargs)
 
-    def delete_from_superbase(self, *args, **kwargs):
-        # Delete file from Supabase
-        try:
-            supabase = get_supabase_client()
-            result = supabase.storage.from_('nl_to_sql_bucket').remove(self.supabase_path)
-            if result.error:
-                raise Exception("Failed to delete file from Supabase")
-            super().delete(*args, **kwargs)
-        except Exception as e:
-            return e
+    def delete_from_b2(self):
+        if self.b2_file_key:
+            try:
+                b2_client = get_b2_client()
+                b2_client.delete_object(Bucket=settings.B2_BUCKET_NAME, Key=self.b2_file_key)
+            except ClientError as e:
+                return e
+        return None
+
+    def delete(self, *args, **kwargs):
+        # Delete file from B2 before deleting the database record
+        error = self.delete_from_b2()
+        if error:
+            raise Exception(f"Error deleting file from B2: {str(error)}")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f'{self.name} uploaded by {self.user.username}'
 
     @property
     def file_path(self):
-        return self.supabase_path
+        return self.b2_file_key
 
     @property
     def file(self):
-        # This property mimics the FileField interface for compatibility
-        class SupabaseFile:
+        class B2File:
             def __init__(self, upload):
                 self.upload = upload
 
             @property
             def path(self):
-                return self.upload.supabase_path
+                return self.upload.b2_file_key
 
             @property
             def url(self):
-                supabase = get_supabase_client()
-                return supabase.storage.from_('nl_to_sql_bucket').get_public_url(self.upload.supabase_path)
+                b2_client = get_b2_client()
+                try:
+                    return b2_client.generate_presigned_url('get_object',
+                                                            Params={'Bucket': settings.B2_BUCKET_NAME,
+                                                                    'Key': self.upload.b2_file_key},
+                                                            ExpiresIn=3600)
+                except ClientError as e:
+                    print(e)
+                    return None
 
             def open(self, mode='rb'):
                 if mode != 'rb':
                     raise ValueError("Only read mode is supported")
-                supabase = get_supabase_client()
-                response = supabase.storage.from_('nl_to_sql_bucket').download(self.upload.supabase_path)
-                return response
+                b2_client = get_b2_client()
+                response = b2_client.get_object(Bucket=settings.B2_BUCKET_NAME, Key=self.upload.b2_file_key)
+                return io.BytesIO(response['Body'].read())
 
-        return SupabaseFile(self)
+        return B2File(self)
 
 
 
@@ -136,8 +135,8 @@ class DatabaseConnection(models.Model):
 class APIUsage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     endpoint = models.CharField(max_length=255)
-    user_input_request_context  = models.CharField(max_length=255, blank=True, null=True)
-    model_response  = models.CharField(max_length=255, blank=True, null=True)
+    user_input_request_context = models.TextField(blank=True, null=True)
+    model_response = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod

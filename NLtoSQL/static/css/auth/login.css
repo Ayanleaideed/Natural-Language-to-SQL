@@ -125,3 +125,26 @@
   padding: 8px 15px;
   border-radius: 20px;
 }
+
+#login-button-demo{
+  width: 10%;
+  padding:10px;
+  background-color: #333;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+#login-button-demo span {
+  margin-left: 10px;
+}
+
+#login-button-demo:hover {
+  background-color: #555;
+}

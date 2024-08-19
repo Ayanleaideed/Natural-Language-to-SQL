@@ -187,3 +187,18 @@ body {
 .dropdown:hover {
   border-color: var(--hover-color);
 }
+
+.home-container {
+  text-align: center;
+  padding: 20px;
+  margin-top: 1rem;
+}
+
+.hero-section {
+  background: linear-gradient(to right, #b34949, #8f94fb);
+  color: white;
+  padding: 80px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  /* position: relative; */
+}

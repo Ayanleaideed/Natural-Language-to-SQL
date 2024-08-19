@@ -22,7 +22,8 @@
       <a class="button upload-button" href="{% url 'upload_database' %}">Upload New Database</a>
     </div>
   </div>
-
+    {% if  databases %}
+    
   <div class="database-info">
     {% for database in databases %}
     <div class="database-card">
@@ -42,7 +43,16 @@
       </div>
     </div>
     {% endfor %}
-    <div class="database-info">
+    {% else %}
+    <div class="home-container">
+      <div class="hero-section">
+        <div class="hero-messages">
+          <p>No Database was uploading.</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <!-- <div class="database-info">
       <div class="database-card">
         <h2>Database Name</h2>
         <p>Upload sample to this database placeholder</p>
@@ -51,7 +61,7 @@
           <button class="button upload-button">Upload Sample Database</button>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </div>
 {% endblock %}
