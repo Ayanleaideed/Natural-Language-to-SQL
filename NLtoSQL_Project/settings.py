@@ -1,23 +1,26 @@
+# settings.py
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 import environ
-from dotenv import load_dotenv
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
 load_dotenv()
 env = environ.Env()
-environ.Env.read_env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-h4()6*kzem6&!i!_rtd1g0%h-l4bz4hj=-aw6nll@d==dj!exx"
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['.vercel.app'])
 
 # Application definition
 INSTALLED_APPS = [
@@ -32,6 +35,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this for static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,9 +67,12 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
 # Database
 DATABASES = {
-    'default': env.db('DATABASE_URL'),
+    'default': dj_database_url.config(
+        default=env('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -85,6 +92,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -93,13 +101,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = '/login_user/'
 
 # B2 Configuration
-B2_BUCKET_NAME = os.environ.get('B2_BUCKET_NAME', "")
-B2_APPLICATION_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID', '')
-B2_APPLICATION_KEY = os.environ.get('B2_APPLICATION_KEY', "")
-B2_REGION = os.environ.get('B2_REGION', "")
+B2_BUCKET_NAME = env('B2_BUCKET_NAME', default="")
+B2_APPLICATION_KEY_ID = env('B2_APPLICATION_KEY_ID', default="")
+B2_APPLICATION_KEY = env('B2_APPLICATION_KEY', default="")
+B2_REGION = env('B2_REGION', default="")
 
 # Google API Configuration
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
+GOOGLE_API_KEY = env('GOOGLE_API_KEY', default="")
 
 # Secret Code (if needed)
-SECRET_CODE = os.environ.get('SECRET_CODE', "")
+SECRET_CODE = env('SECRET_CODE', default="")
+
+# Security settings
+# SECURE_SSL_REDIRECT = env.bool('DJANGO_SECURE_SSL_REDIRECT', default=True)
+# SESSION_COOKIE_SECURE = env.bool('DJANGO_SESSION_COOKIE_SECURE', default=True)
+# CSRF_COOKIE_SECURE = env.bool('DJANGO_CSRF_COOKIE_SECURE', default=True)
+# SECURE_HSTS_SECONDS = env.int('DJANGO_SECURE_HSTS_SECONDS', default=2592000)  # 30 days
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True)
+# SECURE_HSTS_PRELOAD = env.bool('DJANGO_SECURE_HSTS_PRELOAD', default=True)
