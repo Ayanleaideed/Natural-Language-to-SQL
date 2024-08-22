@@ -1,91 +1,135 @@
-# Node.js
-node_modules/
-npm-debug.log
+# # Node.js
+# node_modules/
+# npm-debug.log
 
-# Logs
-logs/
+# # Logs
+# logs/
+# *.log
+# *.log.*
+
+# # OS generated files
+# .DS_Store
+# Thumbs.db
+
+# # Environment variables
+# .env
+
+# # Build directories
+# dist/
+# build/
+
+# # Temporary files
+# *.tmp
+# *.swp
+
+# # Editor directories and files
+# .idea/
+# .vscode/
+# *.sublime-project
+# *.sublime-workspace
+
+# # Python
+# __pycache__/
+# *.py[cod]
+# *.pyo
+# *.pyd
+# venv/
+# ENV/
+# env/
+# .venv/
+# .Python
+
+# # Java
+# *.class
+# *.jar
+# *.war
+# *.ear
+
+# # macOS
+# *.DS_Store
+
+# # Linux
+# *~
+
+# # Windows
+# Thumbs.db
+# ehthumbs.db
+# Desktop.ini
+
+# # Other
+# *.bak
+# *.old
+# *.swp
+# *.swo
+
+# # Ignore database files
+# databases/
+
+
+# # Ignore database files
+# databases/*.sqlite3
+# databases/*.db
+
+# # Ignore pycache files
+# NLtoSQL/__pycache__/
+# # Add to .gitignore
+# *.pyc
+# __pycache__/
+
+
+# # Ignore database files
+# databases/movies.db
+# databases/
+# databases
+
+# # NOTE:
+# --In 5.sql, Write a SQL query to list the titles and release years of   all Harry Potter movies, in chronological order.
+
+# --Your query should output a table with two columns, one for the title of each movie and one for the release year of each movie.
+# --You may assume that the title of all Harry Potter movies will begin with the words “Harry Potter”, and that if a movie title begins with the words “Harry Potter”, it is a Harry Potter movie.
+
+# SELECT title, year FROM movies WHERE title like 'Harry Potter%' ORDER BY year
+
+
+# Python bytecode
+*.py[cod]
+__pycache__/
+*.so
+
+# Django stuff:
 *.log
-*.log.*
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
 
-# OS generated files
-.DS_Store
-Thumbs.db
+# Django migrations
+*/migrations/*
+databases/
+*.DS_Store
+
+
+
+
+
 
 # Environment variables
 .env
 
-# Build directories
-dist/
-build/
-
-# Temporary files
-*.tmp
-*.swp
-
-# Editor directories and files
-.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
+# Virtual environment
 venv/
-ENV/
 env/
-.venv/
-.Python
+myvenv/
 
-# Java
-*.class
-*.jar
-*.war
-*.ear
+# VSCode files
+.vscode/
 
 # macOS
-*.DS_Store
+.DS_Store
 
-# Linux
-*~
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Other
+# Backup files
 *.bak
-*.old
 *.swp
-*.swo
-
-# Ignore database files
-databases/
-
-
-# Ignore database files
-databases/*.sqlite3
-databases/*.db
-
-# Ignore pycache files
-NLtoSQL/__pycache__/
-# Add to .gitignore
-*.pyc
-__pycache__/
-
-
-# Ignore database files
-databases/movies.db
-databases/
-databases
-
-# NOTE:
---In 5.sql, Write a SQL query to list the titles and release years of   all Harry Potter movies, in chronological order.
-
---Your query should output a table with two columns, one for the title of each movie and one for the release year of each movie.
---You may assume that the title of all Harry Potter movies will begin with the words “Harry Potter”, and that if a movie title begins with the words “Harry Potter”, it is a Harry Potter movie.
-
-SELECT title, year FROM movies WHERE title like 'Harry Potter%' ORDER BY year
+*~
