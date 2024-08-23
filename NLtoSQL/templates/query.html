@@ -157,36 +157,136 @@
 
 <script src="{% static 'javaScript/query.js' %}"></script>
 <script>
-  function handleClick() {
-    // Get the active tab
-    const activeTab = document.querySelector('.tab-content.active');
-    
-    if (activeTab && activeTab.id === 'sqlQuery') {
-      // Click the SQL query button if the SQL tab is active
-      const submitSqlButton = document.querySelector('button[name="sql_query"]');
-      if (submitSqlButton) {
-        submitSqlButton.click();
-      }
-    } else if (activeTab && activeTab.id === 'nlQuery') {
-      // Click the NL query button if the NL tab is active
-      const submitNlButton = document.querySelector('button[name="nl_query"]');
-      if (submitNlButton) {
-        submitNlButton.click();
-      }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab Management
+    function openTab(evt, tabName) {
+        var tabcontent = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        var tabbuttons = document.getElementsByClassName("tab-button");
+        for (var i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].classList.remove("active");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.classList.add("active");
+        localStorage.setItem('currentTab', tabName);
     }
-  }
-    function functionToClick() {
-    // Toggle the visibility of the userProfile div
-    const userProfile = document.getElementById('userProfile');
-    if (userProfile.style.display === 'none' || userProfile.style.display === '') {
-        userProfile.style.display = 'block';
-    } else {
-        userProfile.style.display = 'none';
-    }
-}
 
+    function loadTab() {
+        var currentTab = localStorage.getItem('currentTab');
+        if (currentTab) {
+            var tabButton = document.querySelector(`.tab-button[data-tab="${currentTab}"]`);
+            if (tabButton) {
+                tabButton.click();
+            } else {
+                document.querySelector('.tab-button').click();
+            }
+        } else {
+            document.querySelector('.tab-button').click();
+        }
+    }
+
+    // Textarea Adjustments
+    function adjustRows(textarea) {
+        textarea.style.height = '96px';
+        textarea.style.height = (textarea.scrollHeight) + 'px';
+    }
+
+    function indentOnTab(event) {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            const start = event.target.selectionStart;
+            const end = event.target.selectionEnd;
+            event.target.value = event.target.value.substring(0, start) + '  ' + event.target.value.substring(end);
+            event.target.setSelectionRange(start + 2, start + 2);
+        }
+    }
+
+    // Database Info Update
+    function updateDatabaseInfo() {
+        var sqlSelect = document.getElementById('selected_database_sql');
+        var nlSelect = document.getElementById('selected_database_nl');
+        var selectedOption = document.activeElement.id === 'selected_database_sql' ? sqlSelect.options[sqlSelect.selectedIndex] : nlSelect.options[nlSelect.selectedIndex];
+
+        if (selectedOption) {
+            document.getElementById('db-size').textContent = selectedOption.getAttribute('data-size');
+            document.getElementById('db-name').textContent = selectedOption.getAttribute('data-name');
+            document.getElementById('db-user').textContent = selectedOption.getAttribute('data-user');
+            document.getElementById('db-type').textContent = selectedOption.getAttribute('data-type');
+            document.getElementById('db-host').textContent = selectedOption.getAttribute('data-host');
+        } else {
+            console.log('No option selected');
+        }
+    }
+
+    // Query Binding
+    function handleBindQuery() {
+        document.querySelectorAll('.query-entry').forEach(item => {
+            item.onclick = function() {
+                document.getElementById('sql-input').value = this.textContent.trim();
+                document.getElementById('nl-input').value = this.textContent.trim();
+                adjustRows(document.getElementById('sql-input'));
+                adjustRows(document.getElementById('nl-input'));
+            }
+        });
+    }
+
+    // Theme Selection
+    const themeDots = document.querySelectorAll('.theme-dot');
+    const sqlInput = document.getElementById('sql-input');
+    const nlInput = document.getElementById('nl-input');
+
+    themeDots.forEach(dot => {
+        dot.addEventListener('click', function() {
+            themeDots.forEach(d => d.classList.remove('active'));
+            this.classList.add('active');
+            const theme = this.getAttribute('data-theme');
+            sqlInput.className = `theme-${theme}`;
+            nlInput.className = `theme-${theme}`;
+        });
+    });
+
+    // Click Handling
+    window.handleClick = function() {
+        const activeTab = document.querySelector('.tab-content.active');
+        if (activeTab && activeTab.id === 'sqlQuery') {
+            const submitSqlButton = document.querySelector('button[name="sql_query"]');
+            if (submitSqlButton) submitSqlButton.click();
+        } else if (activeTab && activeTab.id === 'nlQuery') {
+            const submitNlButton = document.querySelector('button[name="nl_query"]');
+            if (submitNlButton) submitNlButton.click();
+        }
+    }
+
+    window.functionToClick = function() {
+        const userProfile = document.getElementById('userProfile');
+        userProfile.style.display = userProfile.style.display === 'none' || userProfile.style.display === '' ? 'block' : 'none';
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function(event) {
+            openTab(event, this.getAttribute('data-tab'));
+        });
+    });
+
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('keydown', indentOnTab);
+        textarea.addEventListener('input', () => adjustRows(textarea));
+        textarea.addEventListener('paste', () => setTimeout(() => adjustRows(textarea), 0));
+    });
+
+    document.getElementById('selected_database_sql').addEventListener('change', updateDatabaseInfo);
+    document.getElementById('selected_database_nl').addEventListener('change', updateDatabaseInfo);
+
+    // Initialization
+    updateDatabaseInfo();
+    handleBindQuery();
+    loadTab();
+});
 
 </script>
-</script>
+
 
 {% endblock %}

@@ -94,19 +94,86 @@
    
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const body = document.body;
-      const themeToggle = document.getElementById('theme-toggle');
+  const body = document.body;
+  const themeToggle = document.getElementById('theme-toggle');
+  const userProfile = document.getElementById('userProfile');
+  const userIcon = document.getElementById('userIcon');
+  const loaderContainer = document.querySelector('.loader-container');
+  const blurOverlay = document.querySelector('.blur-overlay');
+  const mainContent = document.querySelector('main');
 
-      const applyTheme = (theme) => {
-        body.classList.remove('light-mode', 'dark-mode');
-        body.classList.add(theme);
-        themeToggle.className = theme === 'dark-mode' ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('theme', theme);
-      };
+  // Function to apply theme
+  const applyTheme = (theme) => {
+    body.classList.remove('light-mode', 'dark-mode');
+    body.classList.add(theme);
+    themeToggle.className = theme === 'dark-mode' ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('theme', theme);
+  };
 
-      const currentTheme = localStorage.getItem('theme') || 'light-mode';
-      applyTheme(currentTheme);
+  // Check local storage for theme
+  const currentTheme = localStorage.getItem('theme') || 'light-mode';
+  applyTheme(currentTheme);
+
+  // Toggle theme on button click
+  themeToggle.addEventListener('click', () => {
+    const newTheme = body.classList.contains('light-mode') ? 'dark-mode' : 'light-mode';
+    applyTheme(newTheme);
+  });
+
+  // Toggle the visibility of userProfile div
+  if (userIcon && userProfile) {
+    userIcon.addEventListener('click', () => {
+      userProfile.style.display = userProfile.style.display === 'block' ? 'none' : 'block';
     });
+  }
+
+  // Loading functions
+  function showLoader() {
+    if (loaderContainer) loaderContainer.style.display = 'flex';
+    if (blurOverlay) blurOverlay.classList.add('active');
+    if (mainContent) mainContent.classList.add('blur');
+  }
+
+  function hideLoader() {
+    if (loaderContainer) loaderContainer.style.display = 'none';
+    if (blurOverlay) blurOverlay.classList.remove('active');
+    if (mainContent) mainContent.classList.remove('blur');
+  }
+
+  // Handle internal link clicks
+  document.querySelectorAll('a[href^="/"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLoader();
+      setTimeout(() => {
+        window.location.href = link.href;
+      }, 100);
+    });
+  });
+
+  // Show loader immediately when the script runs
+  showLoader();
+
+  // Set a timeout to hide the loader after 15 seconds
+  setTimeout(hideLoader, 15000);
+
+  // Still listen for the load event to potentially hide the loader earlier
+  window.addEventListener('load', () => {
+    if (performance.now() < 15000) {
+      hideLoader();
+    }
+  });
+});
+
+function startLoading() {
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) mainContent.classList.add('loading');
+}
+
+function stopLoading() {
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) mainContent.classList.remove('loading');
+}
   </script>
 </body>
 </html>
