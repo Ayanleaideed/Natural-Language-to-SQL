@@ -5,7 +5,6 @@
 
 <link rel="stylesheet" href="{% static 'css/chat_submit_code.css' %}">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Fira+Code&display=swap" rel="stylesheet">
-    
 
 <main class="main-container">
     <div class="container">
@@ -40,17 +39,64 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'javaScript/chat_submit_code.js' %}"></script>
 <script>
-    // Wait for the DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', function() {
     let lastSubmittedCode = $('#code-input').val(); // Initialize with current value
 
-    // Function to update code snippet
+    $(document).ready(function() {
+        $('#code-input').on('input', function() {
+            let currentText = $(this).val();
+            if (currentText !== lastSubmittedCode) {
+                $('#submit').show(); // Show submit button when there are changes
+            } else {
+                $('#submit').hide(); // Hide again if text matches the last submitted code
+            }
+        });
+
+        $('#codeForm').submit(function(event) {
+            event.preventDefault();
+            const codeText = $('#code-input').val();
+
+            if (codeText === lastSubmittedCode) {
+                alert('Please make changes to your code before resubmitting.');
+                return; // Prevent form submission if code hasn't changed
+            }
+
+            lastSubmittedCode = codeText;
+            $('#submit').hide(); 
+            $('#loading').show();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url "chat_submit_view" %}',
+                data: {
+                    'code_text': codeText,
+                    'context_data': $('#response-output').text(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    $('#loading').hide();
+                    if (response.messages) {
+                        showMessage(response.messages, 'error');
+                        $('#response-container').hide(); 
+                    } else {
+                        updateCodeSnippet(response.generated_code); 
+                        $('#message-container').hide();
+                        $('#response-container').show(); 
+                    }
+                },
+                error: function(error) {
+                    $('#loading').hide();
+                    showMessage('An error occurred. Please try again.', 'error');
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+
     function updateCodeSnippet(code) {
         const codeSnippet = document.getElementById('response-output');
         codeSnippet.textContent = code;
     }
 
-    // Function to copy to clipboard
     function copyToClipboard() {
         const copyText = document.getElementById('response-output').textContent;
         navigator.clipboard.writeText(copyText).then(() => {
@@ -61,75 +107,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Function to show message
     function showMessage(text, type) {
         const messageContainer = document.getElementById('message-container');
         const message = document.getElementById('message');
         const messageText = document.getElementById('message-text');
+
         messageText.textContent = text;
         message.className = `message message-${type}`;
         messageContainer.style.display = 'block';
     }
 
-    // Function to close message
     function closeMessage() {
         document.getElementById('message-container').style.display = 'none';
     }
-
-    // Event listener for code input changes
-    $('#code-input').on('input', function() {
-        let currentText = $(this).val();
-        if (currentText !== lastSubmittedCode) {
-            $('#submit').show(); // Show submit button when there are changes
-        } else {
-            $('#submit').hide(); // Hide again if text matches the last submitted code
-        }
-    });
-
-    // Event listener for form submission
-    $('#codeForm').submit(function(event) {
-        event.preventDefault();
-        const codeText = $('#code-input').val();
-        if (codeText === lastSubmittedCode) {
-            alert('Please make changes to your code before resubmitting.');
-            return; // Prevent form submission if code hasn't changed
-        }
-        lastSubmittedCode = codeText; // Update last submitted code
-        $('#submit').hide(); // Optionally hide the button again after submit
-        $('#loading').show();
-        $.ajax({
-            type: 'POST',
-            url: django_urls['chat_submit_view'], // Assuming you've defined this URL
-            data: {
-                'code_text': codeText,
-                'context_data': $('#response-output').text(),
-                'csrfmiddlewaretoken': django_csrf_token // Assuming you've defined this token
-            },
-            success: function(response) {
-                $('#loading').hide();
-                if (response.messages) {
-                    $('#message-text').text(response.messages);
-                    $('#message-container').show();
-                    $('#response-container').hide(); 
-                } else {
-                    updateCodeSnippet(response.generated_code); 
-                    $('#message-container').hide();
-                    $('#response-container').show(); 
-                }
-            },
-            error: function(error) {
-                $('#loading').hide();
-                console.error('Error:', error);
-            }
-        });
-    });
-
-    // Expose functions to global scope if needed
-    window.copyToClipboard = copyToClipboard;
-    window.closeMessage = closeMessage;
-});
-
 </script>
-
 
 {% endblock %}
