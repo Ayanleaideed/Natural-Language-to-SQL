@@ -4,7 +4,6 @@ import environ
 from dotenv import load_dotenv
 import dj_database_url
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,19 +11,13 @@ load_dotenv()
 env = environ.Env()
 environ.Env.read_env()
 
-
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", {})
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG =  os.environ.get("DEBUG", "False").lower() == "true"
-
-
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
-
-
 
 # Application definition
 
@@ -40,6 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this line
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -69,30 +63,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
-
-# Database
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-
 # Database configuration
-# DATABASES = {
-#     'default': env.db('DATABASE_URL', os.environ.get("DATABASE_URL", {})),
-# }
 DATABASES = {
     'default': dj_database_url.parse(os.environ.get('DATABASE_URL', {}))
 }
 
-
-
-
 # Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -108,34 +84,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "America/Chicago"
-
 USE_I18N = True
-
 USE_TZ = True
 
 from django.utils import timezone
-
 current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 LOGIN_URL = '/login_user/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
-
 
 # B2 Configuration
 B2_BUCKET_NAME = env('B2_BUCKET_NAME', default="")
@@ -148,4 +117,3 @@ GOOGLE_API_KEY = env('GOOGLE_API_KEY', default="")
 
 # Secret Code (if needed)
 SECRET_CODE = env('SECRET_CODE', default="")
-
