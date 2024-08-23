@@ -1,21 +1,19 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "your_main_file.py",
-      "use": "@vercel/python",
-      "config": {
-        "pip": [
-          "--no-cache-dir",
-          "-r",
-          "requirements.txt"
-        ]
-      }
+      "src": "manage.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "test_varcel_app/wsgi.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "your_main_file.py"
+      "dest": "/test_varcel_app/wsgi.py"
     }
   ]
 }
