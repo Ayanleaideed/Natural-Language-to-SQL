@@ -1,1 +1,0 @@
-web: gunicorn NLtoSQL_Project.wsgi
