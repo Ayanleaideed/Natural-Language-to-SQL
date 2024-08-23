@@ -471,7 +471,7 @@ def chat_submit_view(request):
 
 
 # Views to handle the secret code for beta test
-@login_required(login_url='/login/')
+@login_required(login_url='login_user')
 def secret_code(request):
     cur_user = request.user
     cache_key = get_cache_key(cur_user.id, 'sql_beta_access')
@@ -1011,37 +1011,37 @@ def db_connection(request, id):
 
 
 
-def games(request):
-    context = {}
-    if request.method == 'POST':
-        user_answer = request.POST.get('user_answer')
-        previous_question = request.POST.get('previous_question')
-        user_performance = request.POST.get('user_performance') == 'True'
+# def games(request):
+#     context = {}
+#     if request.method == 'POST':
+#         user_answer = request.POST.get('user_answer')
+#         previous_question = request.POST.get('previous_question')
+#         user_performance = request.POST.get('user_performance') == 'True'
 
-        # Check if previous_question is empty or None, indicating the start of the game
-        if not previous_question:
-            # Start with an easy question
-            initial_question, initial_difficulty = get_next_sql_question('', '', True)
-            context.update({'next_question': initial_question, 'difficulty': initial_difficulty})
-        else:
-            # Continue with the next question based on user's performance
-            response = get_next_sql_question(previous_question, user_answer, user_performance, request.user.username)
-            context.update({'next_question': response[0], 'difficulty': response[1]})
-        context = get_next_sql_question(user_answer)
-        return render(request, 'games.html', context)
-    else:
-        # Initial welcome message
-        context.update({'welcome_message': f"{request.user.username}, welcome! Do you want to play the SQL game?"})
+#         # Check if previous_question is empty or None, indicating the start of the game
+#         if not previous_question:
+#             # Start with an easy question
+#             initial_question, initial_difficulty = get_next_sql_question('', '', True)
+#             context.update({'next_question': initial_question, 'difficulty': initial_difficulty})
+#         else:
+#             # Continue with the next question based on user's performance
+#             response = get_next_sql_question(previous_question, user_answer, user_performance, request.user.username)
+#             context.update({'next_question': response[0], 'difficulty': response[1]})
+#         context = get_next_sql_question(user_answer)
+#         return render(request, 'games.html', context)
+#     else:
+#         # Initial welcome message
+#         context.update({'welcome_message': f"{request.user.username}, welcome! Do you want to play the SQL game?"})
 
-    return render(request, 'games.html', context)
+#     return render(request, 'games.html', context)
 
 
-def devAi(request):
-    answer = ''
-    if request.method == 'POST':
-        question = request.POST.get('question')
-        answer = code_generator(question)
-    return render(request, 'devAi.html', {'answer': answer})
+# def devAi(request):
+#     answer = ''
+#     if request.method == 'POST':
+#         question = request.POST.get('question')
+#         answer = code_generator(question)
+#     return render(request, 'devAi.html', {'answer': answer})
     
 
 

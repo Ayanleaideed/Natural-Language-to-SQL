@@ -383,33 +383,33 @@ def get_time(seconds):
 
 import google.generativeai as genai
 
-def code_generator(question):
-    try:
-        # Automatically create a prompt for a world-class CSS and HTML agent
-        prompt = f"""
-            You are a world-class CSS and HTML expert. Your goal is to provide the most visually appealing and technically sound code possible, based on the user's input.
+# def code_generator(question):
+#     try:
+#         # Automatically create a prompt for a world-class CSS and HTML agent
+#         prompt = f"""
+#             You are a world-class CSS and HTML expert. Your goal is to provide the most visually appealing and technically sound code possible, based on the user's input.
 
-            User Input: {question}
+#             User Input: {question}
 
-            Requirements:
-            - Visually Exceptional: Strive for a layout that is both beautiful and highly effective in conveying the information.
-            - Technical Excellence: Follow best practices for clean, maintainable code.
-            - Talman CSS Color Palette: Incorporate this palette for a cohesive and aesthetically pleasing color scheme.
-            - Adaptability: Your code should be flexible enough to handle different content lengths and user preferences.
+#             Requirements:
+#             - Visually Exceptional: Strive for a layout that is both beautiful and highly effective in conveying the information.
+#             - Technical Excellence: Follow best practices for clean, maintainable code.
+#             - Talman CSS Color Palette: Incorporate this palette for a cohesive and aesthetically pleasing color scheme.
+#             - Adaptability: Your code should be flexible enough to handle different content lengths and user preferences.
 
-            Output:
-            Provide the complete HTML and CSS code, clearly formatted and well-commented.
+#             Output:
+#             Provide the complete HTML and CSS code, clearly formatted and well-commented.
 
-            Example:
-            If the user input is "Create a webpage showcasing a company's product, including images and a product description," your code should generate a beautiful, responsive webpage incorporating the Talman CSS Color Palette and adhering to all other requirements.
-        """
+#             Example:
+#             If the user input is "Create a webpage showcasing a company's product, including images and a product description," your code should generate a beautiful, responsive webpage incorporating the Talman CSS Color Palette and adhering to all other requirements.
+#         """
 
-        # Use Google Gemini's newest API or model to generate the code
-        model = genai.GenerativeModel('gemini-1.5-pro')
-        response = model.generate_content(prompt)
-        return response.text
-    except Exception as e:
-        return f"Code generation failed. Please try again. Error: {str(e)}"
+#         # Use Google Gemini's newest API or model to generate the code
+#         model = genai.GenerativeModel('gemini-1.5-pro')
+#         response = model.generate_content(prompt)
+#         return response.text
+#     except Exception as e:
+#         return f"Code generation failed. Please try again. Error: {str(e)}"
 
     
     
