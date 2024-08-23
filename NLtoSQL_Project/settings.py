@@ -1,26 +1,30 @@
-import os
 from pathlib import Path
-from dotenv import load_dotenv
+import os
 import environ
+from dotenv import load_dotenv
 import dj_database_url
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables
 load_dotenv()
 env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env()
+
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY', default='your-secret-key-here')
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", {})
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG =  os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.netlify.app']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', []).split(" ")
+
 
 # Application definition
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -33,7 +37,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,40 +66,73 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
+
 # Database
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
+
+# Database configuration
+# DATABASES = {
+#     'default': env.db('DATABASE_URL', os.environ.get("DATABASE_URL", {})),
+# }
 DATABASES = {
-    'default': dj_database_url.config(
-        default=env('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL', {}))
 }
 
+
+
+
 # Password validation
+# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
 ]
 
+
 # Internationalization
+# https://docs.djangoproject.com/en/5.0/topics/i18n/
+
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "America/Chicago"
+
 USE_I18N = True
+
 USE_TZ = True
 
+from django.utils import timezone
+
+current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# https://docs.djangoproject.com/en/5.0/howto/static-files/
+
+STATIC_URL = "static/"
+LOGIN_URL = '/login_user/'
 
 # Default primary key field type
+# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Login URL
-LOGIN_URL = '/login_user/'
+
+
 
 # B2 Configuration
 B2_BUCKET_NAME = env('B2_BUCKET_NAME', default="")
@@ -110,10 +146,3 @@ GOOGLE_API_KEY = env('GOOGLE_API_KEY', default="")
 # Secret Code (if needed)
 SECRET_CODE = env('SECRET_CODE', default="")
 
-# Security settings with default values
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_HSTS_SECONDS = 2592000  # 30 days
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
