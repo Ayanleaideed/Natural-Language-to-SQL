@@ -1,23 +1,15 @@
 [build]
-  command = """
-    export PATH="/opt/buildhome/.pyenv/versions/3.8.12/bin:$PATH"
-    pyenv local 3.8.12
-    python -m venv .venv
-    . .venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    python manage.py collectstatic --noinput
-  """
+  command = "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
   publish = "staticfiles"
+  functions = "netlify/functions"
 
 [build.environment]
   PYTHON_VERSION = "3.8.12"
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/django"
   status = 200
 
-[context.production.environment]
-  DJANGO_SETTINGS_MODULE = "NLtoSQL_Project.settings"
-  DEBUG = "0"
+[[plugins]]
+  package = "netlify-plugin-django"
