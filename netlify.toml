@@ -1,7 +1,9 @@
 [build]
   command = """
-    python3.8 -m venv .venv
-    source .venv/bin/activate
+    export PATH="/opt/buildhome/.pyenv/versions/3.8.12/bin:$PATH"
+    pyenv local 3.8.12
+    python -m venv .venv
+    . .venv/bin/activate
     pip install --upgrade pip
     pip install -r requirements.txt
     python manage.py collectstatic --noinput
@@ -9,7 +11,7 @@
   publish = "staticfiles"
 
 [build.environment]
-  PYTHON_VERSION = "3.8"
+  PYTHON_VERSION = "3.8.12"
 
 [[redirects]]
   from = "/*"
