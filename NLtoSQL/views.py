@@ -476,12 +476,12 @@ def secret_code(request):
     cur_user = request.user
     cache_key = get_cache_key(cur_user.id, 'sql_beta_access')
     
+    # Try to get the permission status from cache
+    is_allowed_user = cache.get(cache_key)
+    
     if request.method == 'POST':
         secret_code = request.POST.get('secret_code')
         code = Alpha_and_beta_test()
-        
-        # Try to get the permission status from cache
-        is_allowed_user = cache.get(cache_key)
         
         if is_allowed_user is None:
             # If not in cache, check the database
