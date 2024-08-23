@@ -3,7 +3,7 @@
   publish = "staticfiles"
 
 [build.environment]
-  PYTHON_VERSION = "3.8.12"
+  PYTHON_VERSION = "3.8"
 
 [[redirects]]
   from = "/*"
