@@ -1,0 +1,17 @@
+[build]
+  command = "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
+  publish = "staticfiles"
+
+[build.environment]
+  PYTHON_VERSION = "3.9"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[plugins]]
+  package = "netlify-plugin-django"
+
+[context.production]
+  command = "gunicorn NLtoSQL_Project.wsgi:application"
