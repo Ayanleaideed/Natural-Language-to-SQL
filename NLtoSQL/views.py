@@ -501,7 +501,7 @@ def secret_code(request):
         else:
             messages.warning(request, 'Your code is incorrect or you are not allowed. Please check and try again.')
 
-    return render(request, 'secret_code.html', {})
+    return render(request, 'secretCode.html', {})
 
 # Views to update the user for upcoming features on the specific routes
 @login_required(login_url='/login/')
