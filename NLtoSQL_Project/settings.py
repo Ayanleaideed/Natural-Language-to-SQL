@@ -20,7 +20,9 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", {})
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =  os.environ.get("DEBUG", False)
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', []).split(" ")
+default_hosts = ['natural-language-to-sql.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default_hosts)
+
 
 
 # Application definition
