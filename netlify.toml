@@ -2,6 +2,7 @@
   command = "pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput"
   publish = "staticfiles"
 
+  
 [build.environment]
   PYTHON_VERSION = "3.8"
 
