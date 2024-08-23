@@ -7,20 +7,20 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables
 load_dotenv()
 env = environ.Env()
 environ.Env.read_env()
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", {})
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "your-default-secret-key-here")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DEBUG", "").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -33,7 +33,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # "whitenoise.middleware.WhiteNoiseMiddleware",  # Add this line
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -65,7 +64,7 @@ WSGI_APPLICATION = "NLtoSQL_Project.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL', {}))
+    'default': dj_database_url.parse(os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'))
 }
 
 # Password validation
@@ -90,18 +89,14 @@ TIME_ZONE = "America/Chicago"
 USE_I18N = True
 USE_TZ = True
 
-from django.utils import timezone
-current_time = timezone.now().strftime("%B %d, %Y - %I:%M %p")
-
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'NLtoSQL', 'static'),
+    os.path.join(BASE_DIR, 'static'),
 ]
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
+# Login URL
 LOGIN_URL = '/login_user/'
 
 # Default primary key field type
