@@ -3,9 +3,13 @@
   publish = "staticfiles"
 
 [build.environment]
-  PYTHON_VERSION = "3.9"
+  PYTHON_VERSION = "3.9.16"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[context.production.environment]
+  DJANGO_SETTINGS_MODULE = "NLtoSQL_Project.settings"
+  DEBUG = "0"
