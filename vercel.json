@@ -1,19 +1,21 @@
 {
-  "version": 2,
   "builds": [
     {
-      "src": "manage.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "NLtoSQL_Project/wsgi.py",
-      "use": "@vercel/python"
+      "src": "your_main_file.py",
+      "use": "@vercel/python",
+      "config": {
+        "pip": [
+          "--no-cache-dir",
+          "-r",
+          "requirements.txt"
+        ]
+      }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/NLtoSQL_Project/wsgi.py"
+      "dest": "your_main_file.py"
     }
   ]
 }
