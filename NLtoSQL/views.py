@@ -149,13 +149,14 @@ def index(request):
         ])
 
         message_from = (
-            "This user has limited features. This user is not able to delete any "
-            "database but is allowed to delete a list of a maximum of three queries. "
-            "The purpose of this is to prevent one anonymous user from deleting this "
-            "test database for everybody to test if they don't have a database to test on. "
-            "Thank you for understanding. "
-            f"Here are the user permissions that are allowed for this Account: {permissions_list.upper()}"
+            "This user has limited features. They are not allowed to delete any "
+            "databases but can delete up to three queries. "
+            "This limitation is to prevent any one anonymous user from deleting the "
+            "test database, ensuring that everyone has a database to work with. "
+            "Thank you for your understanding. "
+            f"Here are the user permissions allowed for this account: {permissions_list.upper()}"
         )
+
         messages.warning(request, message_from)
     # TODO: add new new feature to here
     upComingFeatures = [
