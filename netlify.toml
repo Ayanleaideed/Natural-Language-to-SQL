@@ -1,5 +1,5 @@
 [build]
-  command = "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+  command = "pip install --upgrade pip && pip install -r requirements.txt && python manage.py collectstatic --noinput"
   publish = "staticfiles"
 
 [build.environment]
@@ -13,3 +13,9 @@
 [context.production.environment]
   DJANGO_SETTINGS_MODULE = "NLtoSQL_Project.settings"
   DEBUG = "0"
+  DJANGO_SECURE_SSL_REDIRECT = "true"
+  DJANGO_SESSION_COOKIE_SECURE = "true"
+  DJANGO_CSRF_COOKIE_SECURE = "true"
+  DJANGO_SECURE_HSTS_SECONDS = "2592000"
+  DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS = "true"
+  DJANGO_SECURE_HSTS_PRELOAD = "true"
