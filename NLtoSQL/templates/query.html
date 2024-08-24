@@ -153,6 +153,17 @@
           </div>
       </aside>
   </main>
+  <div class="spinner-overlay" style="display: none;">
+  <div class="spinner">
+    <div class="outer">
+      <div class="inner tl"></div>
+      <div class="inner tr"></div>
+      <div class="inner br"></div>
+      <div class="inner bl"></div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script src="{% static 'javaScript/query.js' %}"></script>
@@ -247,8 +258,30 @@
         });
     });
 
-    // Click Handling
+    // Updated loader functions
+    function showLoader() {
+        const loaderContainer = document.querySelector('.loader-container');
+        const blurOverlay = document.querySelector('.blur-overlay');
+        const mainContent = document.querySelector('main');
+        
+        if (loaderContainer) loaderContainer.style.display = 'flex';
+        if (blurOverlay) blurOverlay.classList.add('active');
+        if (mainContent) mainContent.classList.add('blur');
+    }
+
+    function hideLoader() {
+        const loaderContainer = document.querySelector('.loader-container');
+        const blurOverlay = document.querySelector('.blur-overlay');
+        const mainContent = document.querySelector('main');
+        
+        if (loaderContainer) loaderContainer.style.display = 'none';
+        if (blurOverlay) blurOverlay.classList.remove('active');
+        if (mainContent) mainContent.classList.remove('blur');
+    }
+
+    // Updated click handling
     window.handleClick = function() {
+        showLoader();
         const activeTab = document.querySelector('.tab-content.active');
         if (activeTab && activeTab.id === 'sqlQuery') {
             const submitSqlButton = document.querySelector('button[name="sql_query"]');
@@ -280,13 +313,19 @@
     document.getElementById('selected_database_sql').addEventListener('change', updateDatabaseInfo);
     document.getElementById('selected_database_nl').addEventListener('change', updateDatabaseInfo);
 
+    // Updated form submission handling
+    document.querySelectorAll('.query-form').forEach(form => {
+        form.addEventListener('submit', function(event) {
+            showLoader();
+        });
+    });
+
     // Initialization
     updateDatabaseInfo();
     handleBindQuery();
     loadTab();
+    hideLoader(); // Hide loader on initial page load
 });
-
 </script>
-
 
 {% endblock %}
