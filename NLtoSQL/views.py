@@ -292,38 +292,35 @@ def handle_sql_query(request, databases, selected_database_id, sql_query):
 
 # helper function to handle nl queries for the main query_fun 
 def handle_nl_query(request, databases, selected_database_id, nl_query):
-    if not selected_database_id or not nl_query:
-        messages.warning(request, 'Make sure to select a database and enter a natural language query.')
-        return redirect(query_func)
-
-    try:
-        selected_database = DatabaseUpload.objects.get(id=selected_database_id)
-        # double check that the database is uploaded by this current user
-        if not request.user.id == selected_database.user.id:
-            messages.error('Your not authorized for this database')
-            raise Exception('You are not authorized for this database')
-    except DatabaseUpload.DoesNotExist:
-        messages.warning(request, f'Database {selected_database_id} does not exist.')
-        return redirect(query_func)
-
+    selected_database = DatabaseUpload.objects.get(id=selected_database_id)
     db_type = selected_database.type.name
+
     if db_type == 'SQLite':
-        db_path = selected_database.file.path
-        db_schema = get_database_schema(db_type, db_path)
+        if selected_database.hostType == 'cloud':
+            file_content = download_from_b2(selected_database.b2_file_key)
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite') as temp_file:
+                temp_file.write(file_content.getvalue())
+                db_path = temp_file.name
+            db_schema = get_database_schema(db_type, db_path)
+            os.unlink(db_path)
+        else:
+            db_path = selected_database.file.path
+            db_schema = get_database_schema(db_type, db_path)
     else:
         db_schema = get_database_schema(db_type, selected_database)
+
     sql_query_generated = generate_sql_query(db_type, nl_query, databases_context=db_schema)
-     # Log the API usage
+
+    # Log the API usage
     APIUsage.objects.create(user=request.user, endpoint='nl_query+query_func', user_input_request_context=nl_query, model_response=sql_query_generated)
 
     query_result, column_names, action = execute_query(db_type, request.user, selected_database, sql_query_generated)
 
-    if action:
-        messages.success(request, f"The database action: {action.type.upper()} was successfully: {action.val}")
-
     save_query_history(request.user, sql_query_generated, selected_database, "NL", nl_query)
 
     return render_query_results(request, databases, query_result, column_names, "NL", sql_query_generated)
+
+
 
 # Helper function to handle databases execution for the main query function
 def execute_query(db_type, user, database, query):
@@ -396,7 +393,6 @@ def render_query_results(request, databases, query_result, column_names, query_t
 # views to handle database deletion
 @login_required(login_url='login_user')
 def delete_database(request, pk):
-    
      # Check if the user is a "test user"
     if request.user.username == settings.DEMO_USER:  
         messages.warning(request, 'Test users are not allowed to delete databases.')
