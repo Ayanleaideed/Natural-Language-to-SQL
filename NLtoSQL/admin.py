@@ -5,15 +5,30 @@ from django.http import HttpResponse
 from .models import *
 
 
+# def reset_table_and_identity(modeladmin, request, queryset):
+#     model = queryset.model
+#     with connection.cursor() as cursor:
+#         # Delete all rows from the table
+#         cursor.execute("DELETE FROM {};".format(model._meta.db_table))
+#         # Reset the auto-increment sequence
+#         cursor.execute("DELETE FROM sqlite_sequence WHERE name='{}';".format(model._meta.db_table))
+
+# reset_table_and_identity.short_description = "Reset table and identity key"
+
+
 def reset_table_and_identity(modeladmin, request, queryset):
     model = queryset.model
     with connection.cursor() as cursor:
         # Delete all rows from the table
-        cursor.execute("DELETE FROM {};".format(model._meta.db_table))
+        cursor.execute(f"DELETE FROM {model._meta.db_table};")
+        
         # Reset the auto-increment sequence
-        cursor.execute("DELETE FROM sqlite_sequence WHERE name='{}';".format(model._meta.db_table))
+        # PostgreSQL uses sequences, so you need to find the sequence associated with the model
+        sequence_name = f"{model._meta.db_table}_id_seq"
+        cursor.execute(f"ALTER SEQUENCE {sequence_name} RESTART WITH 1;")
 
 reset_table_and_identity.short_description = "Reset table and identity key"
+
 
 def save_to_csv(modeladmin, request, queryset):
     # Create the HttpResponse object with the appropriate CSV header.
