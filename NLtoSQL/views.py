@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.conf import settings
 
 # from django.views.decorators.csrf import csrf_exempt
 from dataclasses import dataclass
@@ -395,11 +396,18 @@ def render_query_results(request, databases, query_result, column_names, query_t
 # views to handle database deletion
 @login_required(login_url='login_user')
 def delete_database(request, pk):
+    
+     # Check if the user is a "test user"
+    if request.user.username == settings.DEMO_USER:  
+        messages.warning(request, 'Test users are not allowed to delete databases.')
+        return redirect('management')
+    
     try:
         database = DatabaseUpload.objects.get(pk=pk)
     except DatabaseUpload.DoesNotExist:
         messages.error(request, "Database not found.")
         return redirect('management')
+
 
     if request.method == 'POST':
         user_confirmation_password = request.POST.get('password')
