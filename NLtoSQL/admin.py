@@ -120,3 +120,25 @@ admin.site.register(is_allowed_SQL_beta, is_allowed_table)
 admin.site.register(QueryHistory, QueryHistoryAdmin)
 admin.site.register(DatabaseConnection, DatabaseConnectionAdmin)
 admin.site.register(DatabasePermissions, DatabasePermissionsAdmin)
+
+
+
+
+from django.core.cache import cache
+from django.contrib import messages
+from django.shortcuts import redirect
+
+def reset_global_cache(modeladmin, request, queryset):
+    if not request.user.is_superuser:
+        messages.error(request, "You don't have permission to perform this action.")
+        return
+
+    # Clear the entire cache
+    cache.clear()
+
+    messages.success(request, "Global cache has been reset. All users will fetch fresh data on their next request.")
+
+reset_global_cache.short_description = "Reset global cache (forces fresh data fetch)"
+
+# Add this line at the end of your admin.py file, after all your model registrations
+admin.site.add_action(reset_global_cache, 'reset_global_cache')
