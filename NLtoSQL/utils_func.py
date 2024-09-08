@@ -37,8 +37,8 @@ def generate_sql_query(dbType, natural_language_query, databases_context):
 
     try:
         # Initialize the Generative AI model
-        # model = genai.GenerativeModel('gemini-1.5-pro-latest')
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        # model = genai.GenerativeModel('gemini-1.5-flash')
 
 
         # Generate the SQL query from the natural language query
