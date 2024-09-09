@@ -563,14 +563,14 @@ def management(request):
         # Set the first time flag to False
         cache.set(first_time_key, False, timeout=None)  # No expiration
     else:
-        # Not the first time, use cached data
+       # Not the first time, use cached data
         cur_db_type = cache.get(get_cache_key(cur_user.id, 'db_types'))
         if cur_db_type is None:
             # If cache expired, fetch from database
-            dbObj = DatabaseType.objects.all()
+            dbObj = DatabaseType.objects.order_by('id').all()
             cur_db_type = [db.name for db in dbObj if db.name != 'SQLite']
             cache.set(get_cache_key(cur_user.id, 'db_types'), cur_db_type, timeout=3600)
-        
+
         # Get cached user databases
         databases = get_cached_user_databases(cur_user)
 
