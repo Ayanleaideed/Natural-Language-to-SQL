@@ -537,20 +537,21 @@ def generate_sql(request):
     return render(request, 'generate_sql.html', {})
 
 
-
-# views to handle the management route for database information management
 @login_required(login_url='login_user')
 def management(request):
     cur_user = request.user
     
-    # Check if it's the first time access
+    # Check if it's the first time accessing the page
     first_time_key = get_cache_key(cur_user.id, 'first_time_management')
     first_time = cache.get(first_time_key) is None
 
     if first_time:
         # It's the first time, so we'll fetch everything from the database
-        dbObj = DatabaseType.objects.all()
+        # Fetch database types ordered by 'id'
+        dbObj = DatabaseType.objects.order_by('id').all()
         cur_db_type = [db.name for db in dbObj if db.name != 'SQLite']
+
+        # Fetch user databases ordered by 'id' (oldest first)
         databases = list(DatabaseUpload.objects.filter(user=cur_user).select_related('type').order_by('id'))
         
         # Cache the database types
@@ -561,9 +562,9 @@ def management(request):
         cache.set(get_cache_key(cur_user.id, 'databases'), serialized_data, timeout=3600)
         
         # Set the first time flag to False
-        cache.set(first_time_key, False, timeout=None)  # No expiration
+        cache.set(first_time_key, False, timeout=None)  # No expiration for first-time flag
     else:
-       # Not the first time, use cached data
+        # Not the first time, use cached data
         cur_db_type = cache.get(get_cache_key(cur_user.id, 'db_types'))
         if cur_db_type is None:
             # If cache expired, fetch from database
@@ -574,6 +575,12 @@ def management(request):
         # Get cached user databases
         databases = get_cached_user_databases(cur_user)
 
+        # If cache for databases doesn't exist, invalidate and fetch again
+        if databases is None:
+            databases = list(DatabaseUpload.objects.filter(user=cur_user).select_related('type').order_by('id'))
+            serialized_data = serializers.serialize('json', databases, use_natural_foreign_keys=True)
+            cache.set(get_cache_key(cur_user.id, 'databases'), serialized_data, timeout=3600)
+
     context = {
         'databases': databases,
         'db_host': cur_db_type,
@@ -581,6 +588,7 @@ def management(request):
     }
 
     return render(request, 'management.html', context)
+
 
 
 
