@@ -45,14 +45,15 @@ DBMaster Pro lets you talk to your databases in plain English, handles multiple 
 ```mermaid
 graph TD
     A[Your Browser] --> B[Login & Auth]
-    B --> C[Permission Check]
+    B --> C[Initial Permission Check]
     C --> D[Query Builder]
     D --> E[Database Connector]
-    --> E[Permission Check]
-    E --> F1[PostgreSQL]
-    E --> F2[MySQL]
-    E --> F3[SQLite]
-    D --> G[Redis Cache]
+    E --> F[Connection Permission Check]
+    F --> G1[PostgreSQL]
+    F --> G2[MySQL]
+    F --> G3[SQLite]
+    D --> H[Redis Cache]
+
 ```
 
 ### The Secret Sauce
