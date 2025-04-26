@@ -48,7 +48,7 @@ graph TD
     B --> C[Permission Check]
     C --> D[Query Builder]
     D --> E[Database Connector]
-    D --> E[Permission Check]
+    --> E[Permission Check]
     E --> F1[PostgreSQL]
     E --> F2[MySQL]
     E --> F3[SQLite]
