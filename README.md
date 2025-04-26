@@ -102,8 +102,8 @@ class DatabasePermissions(models.Model):
 
 1. **Grab the code**
    ```bash
-   git clone https://github.com/yourusername/dbmaster-pro.git
-   cd dbmaster-pro
+   git clone https://github.com/Ayanleaideed/Natural-Language-to-SQL.git
+   cd Natural-Language-to-SQL
    ```
 
 2. **Create your virtual environment**
